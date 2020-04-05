@@ -26,11 +26,11 @@ public class Database {
         System.out.println(conn);
     }
     
-    public static boolean isValidByColumn(String db, String col, String search) throws SQLException {
+    public static boolean authUser(String username, String password) throws SQLException {
         boolean isValid = false;
         
         Database.connect();
-        ResultSet rs = stmnt.executeQuery("SELECT " + col + " FROM  " + db + " WHERE " + col + "='" + search +"';");
+        ResultSet rs = stmnt.executeQuery("SELECT * FROM  user WHERE userName='" + username +"' AND password='" + password + "';");
 
         if (rs.next()) {
             isValid = true;

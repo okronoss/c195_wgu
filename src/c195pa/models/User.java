@@ -5,6 +5,7 @@
  */
 package c195pa.models;
 
+import static c195pa.models.Database.authUser;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -25,24 +26,13 @@ public class User {
     private String lastUpdateBy;
     
     // get
-    public static User getUser(String username, String password) throws SQLException {
+    public static User getUser(String un, String pass) throws SQLException {
         User user = null;
         
-        if (isUser(username)) {
-            
+        if (authUser(un, pass)) {
+            user = new User();
         }
         
         return user;        
-    }
-    
-    public int getUserId() {
-        return this.userId;
-    }
-    
-    // set
-    
-    // misc
-    public static boolean isUser(String username) throws SQLException {
-        return Database.isValidByColumn(DB_NAME, "userName", username);
     }
 }
