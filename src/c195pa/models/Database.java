@@ -20,13 +20,14 @@ public class Database {
     private static Statement stmnt = null;
     
     private static void connect() throws SQLException {
-        conn = DriverManager.getConnection(URL, DB_USER, DB_PASS);
-        stmnt = conn.createStatement();
-        stmnt.executeQuery("USE U061zg");
-        System.out.println(conn);
+        if (conn == null || !conn.isValid(0)) {
+            conn = DriverManager.getConnection(URL, DB_USER, DB_PASS);
+            stmnt = conn.createStatement();
+            stmnt.executeQuery("USE U061zg");
+        }
     }
     
-    public static boolean authUser(String username, String password) throws SQLException {
+    public static synchronized boolean authUser(String username, String password) throws SQLException {
         boolean isValid = false;
         
         Database.connect();
