@@ -5,6 +5,8 @@
  */
 package c195pa;
 
+import c195pa.models.Database;
+import c195pa.models.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -25,6 +27,10 @@ public class C195pa extends Application {
         
         stage.setScene(scene);
         stage.show();
+        
+        // console testing
+        System.out.println(User.getUser("test", "test"));
+        System.out.println(User.getUser("test2", "test2"));
     }
 
     /**

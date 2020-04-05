@@ -45,6 +45,10 @@ public class LoginController implements Initializable {
 
     @FXML
     private void login(ActionEvent event) {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+        
+        
         // validate username and password
         
         // if valid login and change scene to main screen
