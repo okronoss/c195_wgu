@@ -21,7 +21,7 @@ public class C195pa extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/login.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/Login.fxml"));
         
         Scene scene = new Scene(root);
         
@@ -29,8 +29,8 @@ public class C195pa extends Application {
         stage.show();
         
         // console testing
-        System.out.println(User.getUser("test", "test"));
-        System.out.println(User.getUser("test2", "test2"));
+//        System.out.println(User.getUser("test", "test"));
+//        System.out.println(User.getUser("test2", "test2"));
     }
 
     /**
