@@ -5,7 +5,6 @@
  */
 package c195pa.models;
 
-import static c195pa.models.Database.authUser;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -15,24 +14,104 @@ import java.util.Date;
  * @author alex
  */
 public class User {
-    private static final String DB_NAME = "user";
-    private int userId;
-    private String username;
-    private String password;
-    private Boolean active;
-    private Date createdDate;
-    private String createdBy;
-    private Date lastUpdate;
-    private String lastUpdateBy;
+    private final int id;
+    private final String username;
+    private final String password;
+    private final Boolean active;
+    private final Date createDate;
+    private final String createdBy;
+    private final Date lastUpdate;
+    private final String lastUpdateBy;
     
-    // get
-    public static User getUser(String un, String pass) throws SQLException {
-        User user = null;
+    /**
+     *
+     * @param userId
+     * @throws SQLException
+     */
+    public User (int userId) throws SQLException {
+        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM user WHERE userId='" + userId + "';");
         
-        if (authUser(un, pass)) {
-            user = new User();
+        rs.next();
+        this.id = rs.getInt("userId");
+        this.username = rs.getString("userName");
+        this.password = rs.getString("password");
+        this.active = rs.getBoolean("active");
+        this.createDate = rs.getDate("createDate");
+        this.createdBy = rs.getString("createdBy");
+        this.lastUpdate = rs.getDate("lastUpdate");
+        this.lastUpdateBy = rs.getString("lastUpdateBy");
+    }
+    
+//    public User (String un, String pw, Boolean status) throws SQLException {
+//        username = un;
+//        password = pw;
+//        active = status;
+//        
+//        Database.connect().createStatement().executeUpdate("INSERT INTO user");
+//    }
+    /**
+     *
+     * @return
+     */
+    public String getUsername () {
+        return this.username;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean getActive () {
+        return this.active;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Date getCreateDate () {
+        return this.createDate;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getCreatedBy () {
+        return this.createdBy;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Date getLastUpdate () {
+        return this.lastUpdate;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getLastUpdateBy () {
+        return this.lastUpdateBy;
+    }
+    
+    /**
+     *
+     * @param username
+     * @param password
+     * @return
+     * @throws SQLException
+     */
+    public static synchronized boolean authUser(String username, String password) throws SQLException {
+        boolean isValid = false;
+        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM  user WHERE userName='" + username +"' AND password='" + password + "';");
+
+        if (rs.next()) {
+            isValid = true;
         }
         
-        return user;        
+        return isValid;
     }
 }

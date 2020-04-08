@@ -6,6 +6,8 @@
 package c195pa.models;
 import java.sql.*;
 import java.sql.DriverManager;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -18,26 +20,36 @@ public class Database {
     private static final String DB_PASS = "53688672087";
     private static Connection conn = null;
     private static Statement stmnt = null;
+    private static final ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
+    private static final ObservableList<Appointment> allAppointments = FXCollections.observableArrayList();
     
-    private static void connect() throws SQLException {
+    public static Connection connect() throws SQLException {
         if (conn == null || !conn.isValid(0)) {
             conn = DriverManager.getConnection(URL, DB_USER, DB_PASS);
             stmnt = conn.createStatement();
             stmnt.executeQuery("USE U061zg");
         }
+        
+        return conn;
     }
     
-    public static synchronized boolean authUser(String username, String password) throws SQLException {
-        boolean isValid = false;
+    public static ObservableList<Customer> initAllCusts () throws SQLException {
+        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM customer;");
         
-        Database.connect();
-        ResultSet rs = stmnt.executeQuery("SELECT * FROM  user WHERE userName='" + username +"' AND password='" + password + "';");
-
-        if (rs.next()) {
-            isValid = true;
+        if (!allCustomers.isEmpty()) allCustomers.clear();
+        
+        while (rs.next()) {
+            int id = rs.getInt("customerId");
+            int addressId = rs.getInt("addressId");
+            String name = rs.getString("customerName");
+            boolean active = rs.getBoolean("active");
+            Date createDate = rs.getDate("createDate");
+            String createdBy = rs.getString("createdBy");
+            Date lastUpdate = rs.getDate("lastUpdate");
+            String lastUpdateBy = rs.getString("lastUpdateBy");
+            allCustomers.add(new Customer(id, addressId, name, active, createDate, createdBy, lastUpdate, lastUpdateBy));
         }
         
-        return isValid;
+        return allCustomers;
     }
-    
 }

@@ -5,18 +5,25 @@
  */
 package c195pa.controllers;
 
+import c195pa.models.Appointment;
+import c195pa.models.Customer;
+import c195pa.models.Database;
 import java.net.URL;
+import java.sql.SQLException;
+import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.input.InputMethodEvent;
 
 /**
  * FXML Controller class
@@ -26,17 +33,23 @@ import javafx.scene.input.InputMethodEvent;
 public class MainScreenController implements Initializable {
 
     @FXML
-    private TextField clientSearch;
+    private TextField custSearch;
     @FXML
     private CheckBox showInactive;
     @FXML
-    private TableView<?> clientTable;
+    private TableView<Customer> custTable;
     @FXML
-    private Button addClientBtn;
+    private TableColumn<Customer, String> custNameCol;
     @FXML
-    private Button modifyClientBtn;
+    private TableColumn<Customer, String> custPhoneCol;
     @FXML
-    private Button inactiveClientBtn;
+    private TableColumn<Customer, String> custStatusCol;
+    @FXML
+    private Button addCustBtn;
+    @FXML
+    private Button modifyCustBtn;
+    @FXML
+    private Button inactiveCustBtn;
     @FXML
     private TextField apptSearch;
     @FXML
@@ -46,7 +59,15 @@ public class MainScreenController implements Initializable {
     @FXML
     private RadioButton apptMonthly;
     @FXML
-    private TableView<?> apptTable;
+    private TableView<Appointment> apptTable;
+    @FXML
+    private TableColumn<Appointment, Date> apptDateCol;
+    @FXML
+    private TableColumn<Appointment, Date> apptTimeCol;
+    @FXML
+    private TableColumn<Appointment, String> apptTypeCol;
+    @FXML
+    private TableColumn<Appointment, String> apptCustCol;
     @FXML
     private Button addApptBtn;
     @FXML
@@ -59,14 +80,28 @@ public class MainScreenController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // populate client table
+
+        // populate Customer table
+        custNameCol.setCellValueFactory(cellData -> cellData.getValue().getNameProperty());
+        custPhoneCol.setCellValueFactory(cellData -> cellData.getValue().getPhoneProperty());
+        custStatusCol.setCellValueFactory(cellData -> cellData.getValue().getStatusProperty());
             // filter out inactive by default
         // populate appointment table
+//        apptDateCol.setCellValueFactory(cellData -> cellData.getValue().getDateProperty());
+//        apptTimeCol.setCellValueFactory(cellData -> cellData.getValue().getTimeProperty());
+//        apptTypeCol.setCellValueFactory(cellData -> cellData.getValue().getTypeProperty());
+//        apptCustCol.setCellValueFactory(cellData -> cellData.getValue().getCustProperty());
+        try {
+            custTable.setItems(Database.initAllCusts());
+//            apptTable.setItems(Database.initAllAppts());
+        } catch (SQLException ex) {
+            Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }    
 
     @FXML
-    private void addClient(ActionEvent event) {
-        // switch scene to add client
+    private void addCust(ActionEvent event) {
+        // switch scene to add customer
     }
 
     @FXML
@@ -90,23 +125,23 @@ public class MainScreenController implements Initializable {
     }
 
     @FXML
-    private void generateClientContact(ActionEvent event) {
-        // switch scene to client contact info report
+    private void generateCustContact(ActionEvent event) {
+        // switch scene to customer contact info report
     }
 
     @FXML
-    private void filterClients() {
-        // search & filter clients out
+    private void filterCusts() {
+        // search & filter customers out
     }
 
     @FXML
-    private void modifyClient(ActionEvent event) {
-        // switch to modify clients screen
+    private void modifyCust(ActionEvent event) {
+        // switch to modify customers screen
     }
 
     @FXML
-    private void inactiveClient(ActionEvent event) {
-        // set selected client status to inactive
+    private void inactiveCust(ActionEvent event) {
+        // set selected customer status to inactive
     }
 
     @FXML

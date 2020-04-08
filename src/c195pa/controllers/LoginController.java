@@ -5,7 +5,7 @@
  */
 package c195pa.controllers;
 
-import static c195pa.models.Database.authUser;
+import static c195pa.models.User.authUser;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;

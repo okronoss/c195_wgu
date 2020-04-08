@@ -5,6 +5,7 @@
  */
 package c195pa;
 
+import c195pa.models.Customer;
 import c195pa.models.Database;
 import c195pa.models.User;
 import javafx.application.Application;
@@ -29,8 +30,9 @@ public class C195pa extends Application {
         stage.show();
         
         // console testing
-//        System.out.println(User.getUser("test", "test"));
-//        System.out.println(User.getUser("test2", "test2"));
+//        Customer cust = new Customer(1);
+//        System.out.println(cust.getName());
+//        System.out.println(cust.getPhone());
     }
 
     /**
