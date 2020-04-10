@@ -7,7 +7,12 @@ package c195pa.models;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
@@ -30,7 +35,6 @@ public class Appointment {
     private final String createdBy;
     private final Date lastUpdate;
     private final String lastUpdateBy;
-    private final String customerName;
     
     public Appointment (int apptId) throws SQLException {
         ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM appointment WHERE appointmentId='" + apptId + "';");
@@ -51,10 +55,6 @@ public class Appointment {
         this.createdBy = rs.getString("createdBy");
         this.lastUpdate = rs.getDate("lastUpdate");
         this.lastUpdateBy = rs.getString("lastUpdateBy");
-        
-        ResultSet sub = Database.connect().createStatement().executeQuery("SELECT * FROM customer WHERE customerId='" + this.customerId + "';");
-        sub.next();
-        this.customerName = sub.getString("customerName");
     }
     
     public Appointment (int id, int customerId, int userId, String title, String description, String location, String contact, String type, String url, Date start, Date end, Date createDate, String createdBy, Date lastUpdate, String lastUpdateBy) throws SQLException {
@@ -73,17 +73,25 @@ public class Appointment {
         this.createdBy = createdBy;
         this.lastUpdate = lastUpdate;
         this.lastUpdateBy = lastUpdateBy;
-        
-        ResultSet sub = Database.connect().createStatement().executeQuery("SELECT * FROM customer WHERE customerId='" + customerId + "';");
-        sub.next();
-        this.customerName = sub.getString("customerName");
+    }
+    
+    public String getTitle() {
+        return this.title;
+    }
+    
+    public String getType() {
+        return this.type;
+    }
+    
+    public SimpleStringProperty getTitleProperty () {
+        return new SimpleStringProperty(this.title);
     }
     
     public SimpleStringProperty getTypeProperty () {
         return new SimpleStringProperty(this.type);
     }
     
-    public SimpleStringProperty getCustProperty () {
-        return new SimpleStringProperty(this.customerName);
+    public SimpleObjectProperty getStartProperty () {
+        return new SimpleObjectProperty(Instant.ofEpochMilli(this.start.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
     }
 }

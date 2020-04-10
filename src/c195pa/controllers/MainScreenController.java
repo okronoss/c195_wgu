@@ -11,6 +11,8 @@ import c195pa.models.Database;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -25,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -67,13 +70,13 @@ public class MainScreenController implements Initializable {
     @FXML
     private TableView<Appointment> apptTable;
     @FXML
-    private TableColumn<Appointment, Date> apptDateCol;
-    @FXML
-    private TableColumn<Appointment, Date> apptTimeCol;
+    private TableColumn<Appointment, String> apptTitleCol;
     @FXML
     private TableColumn<Appointment, String> apptTypeCol;
     @FXML
-    private TableColumn<Appointment, String> apptCustCol;
+    private TableColumn<Appointment, LocalDateTime> apptDateCol;
+    @FXML
+    private TableColumn<Appointment, LocalDateTime> apptTimeCol;
     @FXML
     private Button addApptBtn;
     @FXML
@@ -92,10 +95,34 @@ public class MainScreenController implements Initializable {
         custPhoneCol.setCellValueFactory(cellData -> cellData.getValue().getPhoneProperty());
         custStatusCol.setCellValueFactory(cellData -> cellData.getValue().getStatusProperty());
         // set up appointment tableview
-//        apptDateCol.setCellValueFactory(cellData -> cellData.getValue().getDateProperty());
-//        apptTimeCol.setCellValueFactory(cellData -> cellData.getValue().getTimeProperty());
+        apptTitleCol.setCellValueFactory(cellData -> cellData.getValue().getTitleProperty());
         apptTypeCol.setCellValueFactory(cellData -> cellData.getValue().getTypeProperty());
-        apptCustCol.setCellValueFactory(cellData -> cellData.getValue().getCustProperty());
+        apptDateCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
+        apptDateCol.setCellFactory(col -> new TableCell<Appointment, LocalDateTime>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean isEmpty) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                super.updateItem(item, isEmpty);
+                if (isEmpty) {
+                    setText(null);
+                } else {
+                    setText(String.format(item.format(formatter)));
+                }
+            }
+        });
+        apptTimeCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
+        apptTimeCol.setCellFactory(col -> new TableCell<Appointment, LocalDateTime>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean isEmpty) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+                super.updateItem(item, isEmpty);
+                if (isEmpty) {
+                    setText(null);
+                } else {
+                    setText(String.format(item.format(formatter)));
+                }
+            }
+        });
 
         try {
             custTable.setItems(Database.initAllCusts());
@@ -122,8 +149,14 @@ public class MainScreenController implements Initializable {
     }
 
     @FXML
-    private void addAppt(ActionEvent event) {
-        // switch scene to add appointment
+    private void addAppt(ActionEvent event) throws IOException {
+        Button button = addApptBtn;
+        String fxmlFile = "AddAppt.fxml";
+        String title = "Appointment Management System";
+        int width = 1000;
+        int height = 600;
+        
+        switchScene(button, fxmlFile, title, width, height);
     }
 
     @FXML
@@ -154,6 +187,15 @@ public class MainScreenController implements Initializable {
         
         custTable.setItems(searchResults);
     }
+    
+    @FXML
+    private void filterAppt() {
+        ObservableList<Appointment> searchResults;
+        
+        searchResults = Database.getAppointments(apptSearch.getText());
+        
+        apptTable.setItems(searchResults);
+    }
 
     @FXML
     private void modifyCust(ActionEvent event) throws IOException {
@@ -164,11 +206,6 @@ public class MainScreenController implements Initializable {
         int height = 600;
         
         switchScene(button, fxmlFile, title, width, height);
-    }
-
-    @FXML
-    private void filterAppt() {
-        // search & filter appointments
     }
 
     @FXML

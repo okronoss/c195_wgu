@@ -87,7 +87,6 @@ public class Database {
         
         boolean srcIsEmpty = src == null || src.isEmpty();
         
-        
         if(srcIsEmpty && showInactive) {
             searchResults.setPredicate(p -> true);
         }
@@ -99,6 +98,21 @@ public class Database {
         } else if (!srcIsEmpty && !showInactive) {
             searchResults.setPredicate(p -> {
                 return p.getStatus() && p.getName().toLowerCase().contains(src.toLowerCase());
+            });
+        }
+        
+        return searchResults;
+    }
+
+    public static ObservableList<Appointment> getAppointments(String src) {
+        FilteredList<Appointment> searchResults = new FilteredList<>(allAppointments, p -> true);
+        
+        if(src == null || src.isEmpty()) {
+            searchResults.setPredicate(p -> true);
+        }
+        else {
+            searchResults.setPredicate(p -> {
+                return p.getTitle().toLowerCase().contains(src.toLowerCase()) || p.getType().toLowerCase().contains(src.toLowerCase());
             });
         }
         
