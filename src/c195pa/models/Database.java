@@ -8,6 +8,7 @@ import java.sql.*;
 import java.sql.DriverManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 
 /**
  *
@@ -52,4 +53,56 @@ public class Database {
         
         return allCustomers;
     }
+
+    public static ObservableList<Appointment> initAllAppts () throws SQLException {
+        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM appointment;");
+        
+        if (!allAppointments.isEmpty()) allAppointments.clear();
+        
+        while (rs.next()) {
+            int id = rs.getInt("appointmentId");
+            int customerId = rs.getInt("customerId");
+            int userId = rs.getInt("userId");
+            String title = rs.getString("title");
+            String description = rs.getString("description");
+            String location = rs.getString("location");
+            String contact = rs.getString("contact");
+            String type = rs.getString("type");
+            String url = rs.getString("url");
+            Date start = rs.getDate("start");
+            Date end = rs.getDate("end");
+            Date createDate = rs.getDate("createDate");
+            String createdBy = rs.getString("createdBy");
+            Date lastUpdate = rs.getDate("lastUpdate");
+            String lastUpdateBy = rs.getString("lastUpdateBy");
+            
+            allAppointments.add(new Appointment(id, customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy));
+        }
+        
+        return allAppointments;
+    }
+    
+    public static ObservableList<Customer> getCustomers(String src, boolean showInactive) {
+        FilteredList<Customer> searchResults = new FilteredList<>(allCustomers, p -> true);
+        
+        boolean srcIsEmpty = src == null || src.isEmpty();
+        
+        
+        if(srcIsEmpty && showInactive) {
+            searchResults.setPredicate(p -> true);
+        }
+        else if (!srcIsEmpty && showInactive) {
+            searchResults.setPredicate(p -> p.getName().toLowerCase().contains(src.toLowerCase()));
+        }
+        else if (srcIsEmpty && !showInactive) {
+            searchResults.setPredicate(p -> p.getStatus());
+        } else if (!srcIsEmpty && !showInactive) {
+            searchResults.setPredicate(p -> {
+                return p.getStatus() && p.getName().toLowerCase().contains(src.toLowerCase());
+            });
+        }
+        
+        return searchResults;
+    }
+
 }

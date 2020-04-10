@@ -67,7 +67,11 @@ public class Customer {
     public String getPhone() {
         return this.phoneNum;
     }
-
+    
+    public Boolean getStatus() {
+        return this.active;
+    }
+    
     public SimpleStringProperty getNameProperty() {
         return new SimpleStringProperty(this.name);
     }

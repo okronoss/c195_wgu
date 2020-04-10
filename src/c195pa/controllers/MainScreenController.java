@@ -8,15 +8,20 @@ package c195pa.controllers;
 import c195pa.models.Appointment;
 import c195pa.models.Customer;
 import c195pa.models.Database;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
@@ -24,6 +29,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -81,27 +87,38 @@ public class MainScreenController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        // populate Customer table
+        // set up customer tableview
         custNameCol.setCellValueFactory(cellData -> cellData.getValue().getNameProperty());
         custPhoneCol.setCellValueFactory(cellData -> cellData.getValue().getPhoneProperty());
         custStatusCol.setCellValueFactory(cellData -> cellData.getValue().getStatusProperty());
-            // filter out inactive by default
-        // populate appointment table
+        // set up appointment tableview
 //        apptDateCol.setCellValueFactory(cellData -> cellData.getValue().getDateProperty());
 //        apptTimeCol.setCellValueFactory(cellData -> cellData.getValue().getTimeProperty());
-//        apptTypeCol.setCellValueFactory(cellData -> cellData.getValue().getTypeProperty());
-//        apptCustCol.setCellValueFactory(cellData -> cellData.getValue().getCustProperty());
+        apptTypeCol.setCellValueFactory(cellData -> cellData.getValue().getTypeProperty());
+        apptCustCol.setCellValueFactory(cellData -> cellData.getValue().getCustProperty());
+
         try {
             custTable.setItems(Database.initAllCusts());
-//            apptTable.setItems(Database.initAllAppts());
+            // filter out inactive by default
+            apptTable.setItems(Database.initAllAppts());
         } catch (SQLException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        custSearch.textProperty().addListener(obs -> filterCusts());
+        filterCusts();
+        apptSearch.textProperty().addListener(obs -> filterAppt());
     }    
 
     @FXML
-    private void addCust(ActionEvent event) {
-        // switch scene to add customer
+    private void addCust(ActionEvent event) throws IOException {
+        Button button = addCustBtn;
+        String fxmlFile = "AddCust.fxml";
+        String title = "Appointment Management System";
+        int width = 1000;
+        int height = 600;
+        
+        switchScene(button, fxmlFile, title, width, height);
     }
 
     @FXML
@@ -131,17 +148,22 @@ public class MainScreenController implements Initializable {
 
     @FXML
     private void filterCusts() {
-        // search & filter customers out
+        ObservableList<Customer> searchResults;
+        
+        searchResults = Database.getCustomers(custSearch.getText(), showInactive.isSelected());
+        
+        custTable.setItems(searchResults);
     }
 
     @FXML
-    private void modifyCust(ActionEvent event) {
-        // switch to modify customers screen
-    }
-
-    @FXML
-    private void inactiveCust(ActionEvent event) {
-        // set selected customer status to inactive
+    private void modifyCust(ActionEvent event) throws IOException {
+        Button button = modifyCustBtn;
+        String fxmlFile = "ModifyCust.fxml";
+        String title = "Appointment Management System";
+        int width = 1000;
+        int height = 600;
+        
+        switchScene(button, fxmlFile, title, width, height);
     }
 
     @FXML
@@ -159,4 +181,11 @@ public class MainScreenController implements Initializable {
         // delete slected appointment
     }
     
+    private void switchScene(Button button, String fxmlFile, String title, int width, int height) throws IOException {
+        Stage stage = (Stage) button.getScene().getWindow();
+        Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/" + fxmlFile));
+        Scene newScene = new Scene(root, width, height);
+        stage.setTitle(title);
+        stage.setScene(newScene);
+    }
 }
