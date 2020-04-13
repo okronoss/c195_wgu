@@ -141,7 +141,7 @@ public class MainScreenController implements Initializable {
         Button button = addCustBtn;
         String fxmlFile = "AddCust.fxml";
         String title = "Appointment Management System";
-        int width = 1000;
+        int width = 500;
         int height = 600;
         
         switchScene(button, fxmlFile, title, width, height);

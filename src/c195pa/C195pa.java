@@ -5,7 +5,6 @@
  */
 package c195pa;
 
-import java.time.ZoneId;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

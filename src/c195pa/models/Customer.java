@@ -26,7 +26,12 @@ public class Customer {
     private final String phoneNum;
     
     public Customer (int custId) throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM customer WHERE customerId='" + custId + "';");
+        ResultSet rs = Database.connect().createStatement().executeQuery(""
+                + "SELECT * "
+                + "FROM customer "
+                + "WHERE customerId='" + custId + "'"
+                + "INNER JOIN address"
+                + "ON customer.addressId = address.addressId;");
         
         rs.next();
         this.id = rs.getInt("customerId");
@@ -37,11 +42,7 @@ public class Customer {
         this.createdBy = rs.getString("createdBy");
         this.lastUpdate = rs.getDate("lastUpdate");
         this.lastUpdateBy = rs.getString("lastUpdateBy");
-        
-        ResultSet sub = Database.connect().createStatement().executeQuery("SELECT * FROM address WHERE addressId='" + this.addressId + "';");
-        
-        sub.next();
-        this.phoneNum = sub.getString("phone");
+        this.phoneNum = rs.getString("phone");
     }
     
     public Customer (int custId, int addressId, String name, boolean active, Date createDate, String createdBy, Date lastUpdate, String lastUpdateBy) throws SQLException {
@@ -54,10 +55,20 @@ public class Customer {
         this.lastUpdate = lastUpdate;
         this.lastUpdateBy = lastUpdateBy;
         
-        ResultSet sub = Database.connect().createStatement().executeQuery("SELECT * FROM address WHERE addressId='" + this.addressId + "';");
+        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM address WHERE addressId='" + this.addressId + "';");
         
-        sub.next();
-        this.phoneNum = sub.getString("phone");
+        rs.next();
+        this.phoneNum = rs.getString("phone");
+    }
+    
+    public void createCustomer (String name, String address, String address2, String postalCode, String city, String country, String phoneNum) {
+        // name 
+        // address
+        // address 2
+        // postal code
+        // city
+        // country
+        // phone number
     }
     
     public String getName() {

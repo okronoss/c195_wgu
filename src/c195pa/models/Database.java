@@ -78,8 +78,6 @@ public class Database {
             ZonedDateTime lastUpdate = ZonedDateTime.ofInstant(rs.getTimestamp("lastUpdate").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
             String lastUpdateBy = rs.getString("lastUpdateBy");
             
-            System.out.println(ZonedDateTime.ofInstant(rs.getTimestamp("start").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault()));
-            
             allAppointments.add(new Appointment(id, customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy));
         }
         
