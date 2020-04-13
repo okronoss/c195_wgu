@@ -5,9 +5,7 @@
  */
 package c195pa;
 
-import c195pa.models.Customer;
-import c195pa.models.Database;
-import c195pa.models.User;
+import java.time.ZoneId;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,8 +29,8 @@ public class C195pa extends Application {
         
         // console testing
 //        Customer cust = new Customer(1);
-//        System.out.println(cust.getName());
-//        System.out.println(cust.getPhone());
+//        System.out.println(ZoneId.of("UTC"));
+//        System.out.println(ZoneId.systemDefault());
     }
 
     /**

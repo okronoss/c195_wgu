@@ -6,6 +6,8 @@
 package c195pa.models;
 import java.sql.*;
 import java.sql.DriverManager;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -69,12 +71,14 @@ public class Database {
             String contact = rs.getString("contact");
             String type = rs.getString("type");
             String url = rs.getString("url");
-            Date start = rs.getDate("start");
-            Date end = rs.getDate("end");
-            Date createDate = rs.getDate("createDate");
+            ZonedDateTime start = ZonedDateTime.ofInstant(rs.getTimestamp("start").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
+            ZonedDateTime end = ZonedDateTime.ofInstant(rs.getTimestamp("end").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
+            ZonedDateTime createDate = ZonedDateTime.ofInstant(rs.getTimestamp("createDate").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
             String createdBy = rs.getString("createdBy");
-            Date lastUpdate = rs.getDate("lastUpdate");
+            ZonedDateTime lastUpdate = ZonedDateTime.ofInstant(rs.getTimestamp("lastUpdate").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
             String lastUpdateBy = rs.getString("lastUpdateBy");
+            
+            System.out.println(ZonedDateTime.ofInstant(rs.getTimestamp("start").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault()));
             
             allAppointments.add(new Appointment(id, customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy));
         }
@@ -104,11 +108,29 @@ public class Database {
         return searchResults;
     }
 
-    public static ObservableList<Appointment> getAppointments(String src) {
+    public static ObservableList<Appointment> getAppointments(String src, String toggle) {
         FilteredList<Appointment> searchResults = new FilteredList<>(allAppointments, p -> true);
+        int daysOut;
+        
+        switch (toggle) {
+            case "Weekly":
+                daysOut = 7;
+                break;
+            case "Monthly":
+                daysOut = 31;
+                break;
+            default:
+                daysOut = 7;
+                break;
+        }
+        
+        ZonedDateTime min = ZonedDateTime.now();
+        ZonedDateTime max = min.plusDays(daysOut);
         
         if(src == null || src.isEmpty()) {
-            searchResults.setPredicate(p -> true);
+            searchResults.setPredicate(p -> {
+                return p.getStart().isAfter(min) && p.getStart().isBefore(max);
+            });
         }
         else {
             searchResults.setPredicate(p -> {

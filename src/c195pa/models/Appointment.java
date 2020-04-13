@@ -7,11 +7,8 @@ package c195pa.models;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -29,11 +26,11 @@ public class Appointment {
     private final String contact;
     private final String type;
     private final String url;
-    private final Date start;
-    private final Date end;
-    private final Date createDate;
+    private final ZonedDateTime start;
+    private final ZonedDateTime end;
+    private final ZonedDateTime createDate;
     private final String createdBy;
-    private final Date lastUpdate;
+    private final ZonedDateTime lastUpdate;
     private final String lastUpdateBy;
     
     public Appointment (int apptId) throws SQLException {
@@ -49,15 +46,15 @@ public class Appointment {
         this.contact = rs.getString("contact");
         this.type = rs.getString("type");
         this.url = rs.getString("url");
-        this.start = rs.getDate("start");
-        this.end = rs.getDate("end");
-        this.createDate = rs.getDate("createDate");
+        this.start = ZonedDateTime.ofInstant(rs.getTimestamp("start").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
+        this.end = ZonedDateTime.ofInstant(rs.getTimestamp("start").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
+        this.createDate = ZonedDateTime.ofInstant(rs.getTimestamp("start").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
         this.createdBy = rs.getString("createdBy");
-        this.lastUpdate = rs.getDate("lastUpdate");
+        this.lastUpdate = ZonedDateTime.ofInstant(rs.getTimestamp("start").toLocalDateTime().atZone(ZoneId.of("UTC")).toInstant(), ZoneId.systemDefault());
         this.lastUpdateBy = rs.getString("lastUpdateBy");
     }
     
-    public Appointment (int id, int customerId, int userId, String title, String description, String location, String contact, String type, String url, Date start, Date end, Date createDate, String createdBy, Date lastUpdate, String lastUpdateBy) throws SQLException {
+    public Appointment (int id, int customerId, int userId, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end, ZonedDateTime createDate, String createdBy, ZonedDateTime lastUpdate, String lastUpdateBy) throws SQLException {
         this.id = id;
         this.customerId = customerId;
         this.userId = userId;
@@ -83,6 +80,14 @@ public class Appointment {
         return this.type;
     }
     
+    public ZonedDateTime getStart() {
+        return this.start;
+    }
+    
+    public ZonedDateTime getEnd() {
+        return this.end;
+    }
+    
     public SimpleStringProperty getTitleProperty () {
         return new SimpleStringProperty(this.title);
     }
@@ -92,6 +97,6 @@ public class Appointment {
     }
     
     public SimpleObjectProperty getStartProperty () {
-        return new SimpleObjectProperty(Instant.ofEpochMilli(this.start.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+        return new SimpleObjectProperty(this.start);
     }
 }

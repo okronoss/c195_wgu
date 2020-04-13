@@ -11,9 +11,8 @@ import c195pa.models.Database;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,9 +61,9 @@ public class MainScreenController implements Initializable {
     @FXML
     private TextField apptSearch;
     @FXML
-    private RadioButton apptWeekly;
-    @FXML
     private ToggleGroup apptTime;
+    @FXML
+    private RadioButton apptWeekly;
     @FXML
     private RadioButton apptMonthly;
     @FXML
@@ -74,9 +73,9 @@ public class MainScreenController implements Initializable {
     @FXML
     private TableColumn<Appointment, String> apptTypeCol;
     @FXML
-    private TableColumn<Appointment, LocalDateTime> apptDateCol;
+    private TableColumn<Appointment, ZonedDateTime> apptDateCol;
     @FXML
-    private TableColumn<Appointment, LocalDateTime> apptTimeCol;
+    private TableColumn<Appointment, ZonedDateTime> apptTimeCol;
     @FXML
     private Button addApptBtn;
     @FXML
@@ -98,10 +97,10 @@ public class MainScreenController implements Initializable {
         apptTitleCol.setCellValueFactory(cellData -> cellData.getValue().getTitleProperty());
         apptTypeCol.setCellValueFactory(cellData -> cellData.getValue().getTypeProperty());
         apptDateCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
-        apptDateCol.setCellFactory(col -> new TableCell<Appointment, LocalDateTime>() {
+        apptDateCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
             @Override
-            protected void updateItem(LocalDateTime item, boolean isEmpty) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            protected void updateItem(ZonedDateTime item, boolean isEmpty) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
                 super.updateItem(item, isEmpty);
                 if (isEmpty) {
                     setText(null);
@@ -111,9 +110,9 @@ public class MainScreenController implements Initializable {
             }
         });
         apptTimeCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
-        apptTimeCol.setCellFactory(col -> new TableCell<Appointment, LocalDateTime>() {
+        apptTimeCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
             @Override
-            protected void updateItem(LocalDateTime item, boolean isEmpty) {
+            protected void updateItem(ZonedDateTime item, boolean isEmpty) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
                 super.updateItem(item, isEmpty);
                 if (isEmpty) {
@@ -126,7 +125,6 @@ public class MainScreenController implements Initializable {
 
         try {
             custTable.setItems(Database.initAllCusts());
-            // filter out inactive by default
             apptTable.setItems(Database.initAllAppts());
         } catch (SQLException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
@@ -135,6 +133,7 @@ public class MainScreenController implements Initializable {
         custSearch.textProperty().addListener(obs -> filterCusts());
         filterCusts();
         apptSearch.textProperty().addListener(obs -> filterAppt());
+        filterAppt();
     }    
 
     @FXML
@@ -191,8 +190,9 @@ public class MainScreenController implements Initializable {
     @FXML
     private void filterAppt() {
         ObservableList<Appointment> searchResults;
+        RadioButton selectedRb = (RadioButton) apptTime.getSelectedToggle();
         
-        searchResults = Database.getAppointments(apptSearch.getText());
+        searchResults = Database.getAppointments(apptSearch.getText(), selectedRb.getText());
         
         apptTable.setItems(searchResults);
     }

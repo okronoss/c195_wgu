@@ -7,7 +7,9 @@ package c195pa.models;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  *
@@ -18,9 +20,9 @@ public class User {
     private final String username;
     private final String password;
     private final Boolean active;
-    private final Date createDate;
+    private final LocalDateTime createDate;
     private final String createdBy;
-    private final Date lastUpdate;
+    private final LocalDateTime lastUpdate;
     private final String lastUpdateBy;
     
     /**
@@ -36,19 +38,12 @@ public class User {
         this.username = rs.getString("userName");
         this.password = rs.getString("password");
         this.active = rs.getBoolean("active");
-        this.createDate = rs.getDate("createDate");
+        this.createDate = Instant.ofEpochMilli(rs.getDate("createDate").getTime()).atZone(ZoneId.of("UTC")).toLocalDateTime();
         this.createdBy = rs.getString("createdBy");
-        this.lastUpdate = rs.getDate("lastUpdate");
+        this.lastUpdate = Instant.ofEpochMilli(rs.getDate("lastUpdate").getTime()).atZone(ZoneId.of("UTC")).toLocalDateTime();
         this.lastUpdateBy = rs.getString("lastUpdateBy");
     }
     
-//    public User (String un, String pw, Boolean status) throws SQLException {
-//        username = un;
-//        password = pw;
-//        active = status;
-//        
-//        Database.connect().createStatement().executeUpdate("INSERT INTO user");
-//    }
     /**
      *
      * @return
@@ -69,7 +64,7 @@ public class User {
      *
      * @return
      */
-    public Date getCreateDate () {
+    public LocalDateTime getCreateDate () {
         return this.createDate;
     }
 
@@ -85,7 +80,7 @@ public class User {
      *
      * @return
      */
-    public Date getLastUpdate () {
+    public LocalDateTime getLastUpdate () {
         return this.lastUpdate;
     }
 
