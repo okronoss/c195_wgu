@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.241" xmlns:fx="http://javafx.com/fxml/1" fx:controller="c195pa.controllers.AddCust">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.241" xmlns:fx="http://javafx.com/fxml/1" fx:controller="c195pa.controllers.AddCustController">
    <children>
       <GridPane>
         <columnConstraints>
@@ -143,24 +143,29 @@
                   </GridPane>
                   <FlowPane alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                      <children>
-                        <Button fx:id="saveCustBtn" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Save">
+                        <Button fx:id="saveCustBtn" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#saveCust" text="Save">
                            <FlowPane.margin>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </FlowPane.margin>
                         </Button>
-                        <Button fx:id="cancelBtn" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Cancel">
+                        <Button fx:id="cancelBtn" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#returnToMainScreen" text="Cancel">
                            <FlowPane.margin>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </FlowPane.margin>
                         </Button>
                      </children>
                   </FlowPane>
+                  <Text fx:id="errorText" fill="RED" strokeType="OUTSIDE" strokeWidth="0.0" text="Error Text" visible="false" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                     <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </GridPane.margin>
+                  </Text>
                </children>
             </GridPane>
          </children>
       </GridPane>
    </children>
-   <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-   </padding>
 </VBox>

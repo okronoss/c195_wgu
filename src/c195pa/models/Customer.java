@@ -5,6 +5,8 @@
  */
 package c195pa.models;
 
+import c195pa.C195pa;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -61,14 +63,34 @@ public class Customer {
         this.phoneNum = rs.getString("phone");
     }
     
-    public void createCustomer (String name, String address, String address2, String postalCode, String city, String country, String phoneNum) {
-        // name 
-        // address
-        // address 2
-        // postal code
-        // city
-        // country
-        // phone number
+    public static void insertCustomer (String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
+        String un = C195pa.USER.getUsername();
+        String sql = "";
+        String countryId;
+        Connection conn = Database.connect();
+        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM country WHERE country='" + country + "'; ");
+        
+        try {
+            conn.setAutoCommit(false);
+            
+            if (rs.next()) {
+                countryId = "'" + rs.getString("countryId") + "'";
+            } else {
+                conn.createStatement().executeUpdate("INSERT INTO country (country, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                        + "VALUES('" + country + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+                countryId = "LAST_INSERT_ID()";
+            }
+            conn.createStatement().executeUpdate("INSERT INTO city (city, countryId, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                    + "VALUES('" + city + "', " + countryId + ", NOW(), '" + un + "', NOW(), '" + un + "');");
+            conn.createStatement().executeUpdate("INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                + "VALUES('" + address + "', '" + address2 + "', LAST_INSERT_ID(), '" + postalCode + "', '" + phoneNum + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+            conn.createStatement().executeUpdate("INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                + "VALUES('" + name + "', LAST_INSERT_ID(), 1, NOW(), '" + un + "', NOW(), '" + un + "');");
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            if (conn != null) conn.rollback();
+        }
     }
     
     public String getName() {

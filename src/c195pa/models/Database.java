@@ -4,8 +4,12 @@
  * and open the template in the editor.
  */
 package c195pa.models;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import javafx.collections.FXCollections;
@@ -25,6 +29,7 @@ public class Database {
     private static Statement stmnt = null;
     private static final ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
     private static final ObservableList<Appointment> allAppointments = FXCollections.observableArrayList();
+    private static final ObservableList<String> allCountries = FXCollections.observableArrayList();
     
     public static Connection connect() throws SQLException {
         if (conn == null || !conn.isValid(0)) {
@@ -84,23 +89,35 @@ public class Database {
         return allAppointments;
     }
     
+    public static ObservableList<String> initAllCountries () throws SQLException {
+        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM country;");
+        
+        if (!allCountries.isEmpty()) allCountries.clear();
+        
+        while (rs.next()) {
+            allCountries.add(rs.getString("country"));
+        }
+        
+        return allCountries;
+    }
+
     public static ObservableList<Customer> getCustomers(String src, boolean showInactive) {
         FilteredList<Customer> searchResults = new FilteredList<>(allCustomers, p -> true);
         
-        boolean srcIsEmpty = src == null || src.isEmpty();
-        
-        if(srcIsEmpty && showInactive) {
-            searchResults.setPredicate(p -> true);
-        }
-        else if (!srcIsEmpty && showInactive) {
-            searchResults.setPredicate(p -> p.getName().toLowerCase().contains(src.toLowerCase()));
-        }
-        else if (srcIsEmpty && !showInactive) {
-            searchResults.setPredicate(p -> p.getStatus());
-        } else if (!srcIsEmpty && !showInactive) {
-            searchResults.setPredicate(p -> {
-                return p.getStatus() && p.getName().toLowerCase().contains(src.toLowerCase());
-            });
+        if(src == null || src.isEmpty()) {
+            if (showInactive) {
+                searchResults.setPredicate(p -> true);
+            } else {
+                searchResults.setPredicate(p -> p.getStatus());
+            }
+        } else {
+            if (showInactive) {
+                searchResults.setPredicate(p -> p.getName().toLowerCase().contains(src.toLowerCase()));
+            } else {
+                searchResults.setPredicate(p -> {
+                    return p.getStatus() && p.getName().toLowerCase().contains(src.toLowerCase());
+                });
+            }
         }
         
         return searchResults;

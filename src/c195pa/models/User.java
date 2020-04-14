@@ -5,6 +5,7 @@
  */
 package c195pa.models;
 
+import c195pa.C195pa;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -100,13 +101,14 @@ public class User {
      * @throws SQLException
      */
     public static synchronized boolean authUser(String username, String password) throws SQLException {
-        boolean isValid = false;
+        boolean valid = false;
         ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM  user WHERE userName='" + username +"' AND password='" + password + "';");
 
         if (rs.next()) {
-            isValid = true;
+            valid = true;
+            C195pa.USER = new User(rs.getInt("userId"));
         }
         
-        return isValid;
+        return valid;
     }
 }

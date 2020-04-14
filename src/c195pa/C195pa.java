@@ -5,6 +5,7 @@
  */
 package c195pa;
 
+import c195pa.models.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,6 +17,7 @@ import javafx.stage.Stage;
  * @author alex
  */
 public class C195pa extends Application {
+    public static User USER = null;
     
     @Override
     public void start(Stage stage) throws Exception {
@@ -27,7 +29,6 @@ public class C195pa extends Application {
         stage.show();
         
         // console testing
-//        Customer cust = new Customer(1);
 //        System.out.println(ZoneId.of("UTC"));
 //        System.out.println(ZoneId.systemDefault());
     }
