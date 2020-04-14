@@ -13,6 +13,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +24,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
@@ -39,7 +42,9 @@ import javafx.stage.Stage;
  * @author alex
  */
 public class MainScreenController implements Initializable {
-
+    public static int modifyCustId;
+    public static int modifyApptId;
+    
     @FXML
     private TextField custSearch;
     @FXML
@@ -198,6 +203,42 @@ public class MainScreenController implements Initializable {
     }
 
     @FXML
+    private void inactiveCust(ActionEvent event) throws SQLException {
+        if (custTable.getSelectionModel().getSelectedItem() != null) {
+            Customer inactiveCust = custTable.getSelectionModel().getSelectedItem();
+
+            Alert confirmDiag = new Alert(Alert.AlertType.CONFIRMATION);
+
+            confirmDiag.setTitle("Set " + inactiveCust.getName() + " to Inactive");
+            confirmDiag.setHeaderText("Are you sure?");
+            confirmDiag.setContentText("This will set this customer to inactive and remove all appointments.\n "
+                    + "Are you sure you want to set this customer to inactive?");
+
+            Optional<ButtonType> result = confirmDiag.showAndWait();
+            if (result.get() == ButtonType.OK){
+                if(Customer.toggleActive(inactiveCust.getId())) {
+                    Database.initAllCusts();
+                    Database.initAllAppts();
+                } else {
+                    Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+                    alertFailed.setTitle("Error");
+                    alertFailed.setHeaderText("Update Failed");
+                    alertFailed.setContentText("Unable to update database.");
+
+                    alertFailed.showAndWait();
+                }
+            }
+        } else {
+            Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+            alertFailed.setTitle("Error");
+            alertFailed.setHeaderText("Invalid Customer");
+            alertFailed.setContentText("Please select a customer to modify.");
+
+            alertFailed.showAndWait();
+        }
+    }
+
+    @FXML
     private void modifyCust(ActionEvent event) throws IOException {
         Button button = modifyCustBtn;
         String fxmlFile = "ModifyCust.fxml";
@@ -205,7 +246,17 @@ public class MainScreenController implements Initializable {
         int width = 1000;
         int height = 600;
         
-        switchScene(button, fxmlFile, title, width, height);
+        if (custTable.getSelectionModel().getSelectedItem() != null) {        
+            modifyCustId = custTable.getSelectionModel().getSelectedItem().getId();
+            switchScene(button, fxmlFile, title, width, height);
+        } else {
+            Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+            alertFailed.setTitle("Error");
+            alertFailed.setHeaderText("Invalid Customer");
+            alertFailed.setContentText("Please select a customer to modify.");
+
+            alertFailed.showAndWait();
+        }
     }
 
     @FXML

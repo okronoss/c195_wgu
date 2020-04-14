@@ -63,34 +63,8 @@ public class Customer {
         this.phoneNum = rs.getString("phone");
     }
     
-    public static void insertCustomer (String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
-        String un = C195pa.USER.getUsername();
-        String sql = "";
-        String countryId;
-        Connection conn = Database.connect();
-        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM country WHERE country='" + country + "'; ");
-        
-        try {
-            conn.setAutoCommit(false);
-            
-            if (rs.next()) {
-                countryId = "'" + rs.getString("countryId") + "'";
-            } else {
-                conn.createStatement().executeUpdate("INSERT INTO country (country, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                        + "VALUES('" + country + "', NOW(), '" + un + "', NOW(), '" + un + "');");
-                countryId = "LAST_INSERT_ID()";
-            }
-            conn.createStatement().executeUpdate("INSERT INTO city (city, countryId, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                    + "VALUES('" + city + "', " + countryId + ", NOW(), '" + un + "', NOW(), '" + un + "');");
-            conn.createStatement().executeUpdate("INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                + "VALUES('" + address + "', '" + address2 + "', LAST_INSERT_ID(), '" + postalCode + "', '" + phoneNum + "', NOW(), '" + un + "', NOW(), '" + un + "');");
-            conn.createStatement().executeUpdate("INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                + "VALUES('" + name + "', LAST_INSERT_ID(), 1, NOW(), '" + un + "', NOW(), '" + un + "');");
-            conn.commit();
-            conn.setAutoCommit(true);
-        } catch (SQLException e) {
-            if (conn != null) conn.rollback();
-        }
+    public int getId() {
+        return this.id;
     }
     
     public String getName() {
@@ -117,4 +91,70 @@ public class Customer {
         return new SimpleStringProperty(this.phoneNum);
     }
     
+    public static void insertCustomer (String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
+        String un = C195pa.USER.getUsername();
+        String countryId;
+        Connection conn = Database.connect();
+        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM country WHERE country='" + country + "'; ");
+        
+        try {
+            conn.setAutoCommit(false);
+            
+            if (rs.next()) {
+                countryId = "'" + rs.getString("countryId") + "'";
+            } else {
+                conn.createStatement().executeUpdate("INSERT INTO country (country, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                        + "VALUES('" + country + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+                countryId = "LAST_INSERT_ID()";
+            }
+            conn.createStatement().executeUpdate("INSERT INTO city (city, countryId, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                    + "VALUES('" + city + "', " + countryId + ", NOW(), '" + un + "', NOW(), '" + un + "');");
+            conn.createStatement().executeUpdate("INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                + "VALUES('" + address + "', '" + address2 + "', LAST_INSERT_ID(), '" + postalCode + "', '" + phoneNum + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+            conn.createStatement().executeUpdate("INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                + "VALUES('" + name + "', LAST_INSERT_ID(), 1, NOW(), '" + un + "', NOW(), '" + un + "');");
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            conn.rollback();
+        }
+    }
+    
+    public static boolean toggleActive(int id) throws SQLException {
+        String un = C195pa.USER.getUsername();
+        Connection conn = Database.connect();
+        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM customer WHERE customerId='" + id + "';");
+        boolean saved = false;
+        
+        if (rs.next()) {
+            if (rs.getBoolean("active")) {
+                // they are currently active.
+                try {
+                    // turn off auto-commit
+                    conn.setAutoCommit(false);
+                    // set customer to inactive
+                    conn.createStatement().executeUpdate("UPDATE customer SET active='0' WHERE customerId='" + id + "';");
+                    // delete all attached appointments
+                    conn.createStatement().executeUpdate("DELETE FROM appointment WHERE customerId='" + id + "';");
+                    // commit changes
+                    conn.commit();
+                    // turn auto-commit back on
+                    conn.setAutoCommit(true);
+                    
+                    saved = true;
+                } catch (SQLException e) {
+                    // on failure rollback changes
+                    conn.rollback();
+                }
+            } else {
+                // they are currently inactive.
+                // set to active.
+                conn.createStatement().executeUpdate("UPDATE customer SET active='1' WHERE customerId='" + id + "';");
+            }
+        } else {
+            System.err.println("Error: No Customer found.");
+        }
+        
+        return saved;
+    }
 }
