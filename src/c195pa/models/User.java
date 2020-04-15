@@ -5,7 +5,7 @@
  */
 package c195pa.models;
 
-import c195pa.C195pa;
+import c195pa.AMS;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -32,7 +32,7 @@ public class User {
      * @throws SQLException
      */
     public User (int userId) throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM user WHERE userId='" + userId + "';");
+        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT * FROM user WHERE userId='" + userId + "';");
         
         rs.next();
         this.id = rs.getInt("userId");
@@ -102,11 +102,11 @@ public class User {
      */
     public static synchronized boolean authUser(String username, String password) throws SQLException {
         boolean valid = false;
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM  user WHERE userName='" + username +"' AND password='" + password + "';");
+        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT * FROM  user WHERE userName='" + username +"' AND password='" + password + "';");
 
         if (rs.next()) {
             valid = true;
-            C195pa.USER = new User(rs.getInt("userId"));
+            AMS.USER = new User(rs.getInt("userId"));
         }
         
         return valid;

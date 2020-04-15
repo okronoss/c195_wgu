@@ -5,9 +5,9 @@
  */
 package c195pa.controllers;
 
+import c195pa.AMS;
 import c195pa.models.Appointment;
 import c195pa.models.Customer;
-import c195pa.models.Database;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -129,8 +129,8 @@ public class MainScreenController implements Initializable {
         });
 
         try {
-            custTable.setItems(Database.initAllCusts());
-            apptTable.setItems(Database.initAllAppts());
+            custTable.setItems(AMS.initAllCusts());
+            apptTable.setItems(AMS.initAllAppts());
         } catch (SQLException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -187,7 +187,7 @@ public class MainScreenController implements Initializable {
     private void filterCusts() {
         ObservableList<Customer> searchResults;
         
-        searchResults = Database.getCustomers(custSearch.getText(), showInactive.isSelected());
+        searchResults = AMS.getCustomers(custSearch.getText(), showInactive.isSelected());
         
         custTable.setItems(searchResults);
     }
@@ -197,7 +197,7 @@ public class MainScreenController implements Initializable {
         ObservableList<Appointment> searchResults;
         RadioButton selectedRb = (RadioButton) apptTime.getSelectedToggle();
         
-        searchResults = Database.getAppointments(apptSearch.getText(), selectedRb.getText());
+        searchResults = AMS.getAppointments(apptSearch.getText(), selectedRb.getText());
         
         apptTable.setItems(searchResults);
     }
@@ -217,8 +217,8 @@ public class MainScreenController implements Initializable {
             Optional<ButtonType> result = confirmDiag.showAndWait();
             if (result.get() == ButtonType.OK){
                 if(Customer.toggleActive(inactiveCust.getId())) {
-                    Database.initAllCusts();
-                    Database.initAllAppts();
+                    AMS.initAllCusts();
+                    AMS.initAllAppts();
                 } else {
                     Alert alertFailed = new Alert(Alert.AlertType.ERROR);
                     alertFailed.setTitle("Error");

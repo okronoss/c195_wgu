@@ -5,11 +5,10 @@
  */
 package c195pa.models;
 
-import c195pa.C195pa;
+import c195pa.AMS;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
@@ -24,7 +23,7 @@ public final class Customer {
     private final String phoneNum;
     
     public Customer (int custId) throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery(""
+        ResultSet rs = AMS.connect().createStatement().executeQuery(""
                 + "SELECT c.customerId, c.addressId, c.customerName, c.active, a.phone "
                 + "FROM customer c "
                 + "INNER JOIN address a "
@@ -72,7 +71,7 @@ public final class Customer {
     }
     
     public String getPhone(int addressId) throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT phone FROM address WHERE addressId='" + addressId + "';");
+        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT phone FROM address WHERE addressId='" + addressId + "';");
         return rs.next() ? rs.getString("phone") : "";
     }
 
@@ -81,22 +80,22 @@ public final class Customer {
     }
 
     public String getAddress() throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT address FROM address WHERE addressId='" + this.addressId + "';");
+        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT address FROM address WHERE addressId='" + this.addressId + "';");
         return rs.next() ? rs.getString("address") : "";
     }
 
     public String getAddress2() throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT address2 FROM address WHERE addressId='" + this.addressId + "';");
+        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT address2 FROM address WHERE addressId='" + this.addressId + "';");
         return rs.next() ? rs.getString("address2") : "";
     }
 
     public String getPostalCode() throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT postalCode FROM address WHERE addressId='" + this.addressId + "';");
+        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT postalCode FROM address WHERE addressId='" + this.addressId + "';");
         return rs.next() ? rs.getString("postalCode") : "";
     }
 
     public String getCity() throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery(""
+        ResultSet rs = AMS.connect().createStatement().executeQuery(""
                 + "SELECT c.city "
                 + "FROM city c "
                 + "INNER JOIN address a "
@@ -106,7 +105,7 @@ public final class Customer {
     }
     
     public String getCountry() throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery(""
+        ResultSet rs = AMS.connect().createStatement().executeQuery(""
                 + "SELECT co.country "
                 + "FROM country co "
                 + "INNER JOIN city ci "
@@ -119,9 +118,9 @@ public final class Customer {
     }
 
     public static void insertCustomer (String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
-        String un = C195pa.USER.getUsername();
+        String un = AMS.USER.getUsername();
         String countryId;
-        Connection conn = Database.connect();
+        Connection conn = AMS.connect();
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM country WHERE country='" + country + "'; ");
         
         try {
@@ -148,8 +147,8 @@ public final class Customer {
     }
 
     public static void updateCustomer (int custId, String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
-        String un = C195pa.USER.getUsername();
-        Connection conn = Database.connect();
+        String un = AMS.USER.getUsername();
+        Connection conn = AMS.connect();
         String countryId;
         int cityId;
         int addressId;
@@ -217,8 +216,8 @@ public final class Customer {
     }
     
     public static boolean toggleActive(int id) throws SQLException {
-        String un = C195pa.USER.getUsername();
-        Connection conn = Database.connect();
+        String un = AMS.USER.getUsername();
+        Connection conn = AMS.connect();
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM customer WHERE customerId='" + id + "';");
         boolean saved = false;
         

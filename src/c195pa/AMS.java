@@ -3,45 +3,68 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package c195pa.models;
+package c195pa;
+
+import c195pa.models.Appointment;
+import c195pa.models.Customer;
+import c195pa.models.User;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 /**
  *
  * @author alex
  */
-public class Database {
+public class AMS extends Application {
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://3.227.166.251";
+    private static final String DB_URL = "jdbc:mysql://3.227.166.251";
     private static final String DB_USER = "U061zg";
     private static final String DB_PASS = "53688672087";
     private static Connection conn = null;
-    private static Statement stmnt = null;
     private static final ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
     private static final ObservableList<Appointment> allAppointments = FXCollections.observableArrayList();
     private static final ObservableList<String> allCountries = FXCollections.observableArrayList();
+    public static User USER = null;
     
+    @Override
+    public void start(Stage stage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/Login.fxml"));
+        
+        Scene scene = new Scene(root);
+        
+        stage.setScene(scene);
+        stage.show();        
+    }
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
     public static Connection connect() throws SQLException {
         if (conn == null || !conn.isValid(0)) {
-            conn = DriverManager.getConnection(URL, DB_USER, DB_PASS);
-            stmnt = conn.createStatement();
-            stmnt.executeQuery("USE U061zg");
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+            conn.createStatement().executeQuery("USE U061zg");
         }
         
         return conn;
     }
     
     public static ObservableList<Customer> initAllCusts () throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM customer;");
+        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM customer;");
         
         if (!allCustomers.isEmpty()) allCustomers.clear();
         
@@ -57,7 +80,7 @@ public class Database {
     }
 
     public static ObservableList<Appointment> initAllAppts () throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM appointment;");
+        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM appointment;");
         
         if (!allAppointments.isEmpty()) allAppointments.clear();
         
@@ -85,7 +108,7 @@ public class Database {
     }
     
     public static ObservableList<String> initAllCountries () throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM country;");
+        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM country;");
         
         if (!allCountries.isEmpty()) allCountries.clear();
         
@@ -140,6 +163,26 @@ public class Database {
         if(src == null || src.isEmpty()) {
             searchResults.setPredicate(p -> {
                 return p.getStart().isAfter(min) && p.getStart().isBefore(max);
+            });
+        }
+        else {
+            searchResults.setPredicate(p -> {
+                return p.getTitle().toLowerCase().contains(src.toLowerCase()) || p.getType().toLowerCase().contains(src.toLowerCase());
+            });
+        }
+        
+        return searchResults;
+    }
+
+
+    public static ObservableList<Appointment> getAppointments(String src) {
+        FilteredList<Appointment> searchResults = new FilteredList<>(allAppointments, p -> true);
+        
+        ZonedDateTime min = ZonedDateTime.now();
+        
+        if(src == null || src.isEmpty()) {
+            searchResults.setPredicate(p -> {
+                return p.getStart().isAfter(min);
             });
         }
         else {

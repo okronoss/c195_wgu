@@ -5,6 +5,7 @@
  */
 package c195pa.models;
 
+import c195pa.AMS;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZoneId;
@@ -34,7 +35,7 @@ public class Appointment {
     private final String lastUpdateBy;
     
     public Appointment (int apptId) throws SQLException {
-        ResultSet rs = Database.connect().createStatement().executeQuery("SELECT * FROM appointment WHERE appointmentId='" + apptId + "';");
+        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT * FROM appointment WHERE appointmentId='" + apptId + "';");
         
         rs.next();
         this.id = rs.getInt("appointmentId");

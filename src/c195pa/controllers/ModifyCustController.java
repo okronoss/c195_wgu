@@ -5,16 +5,15 @@
  */
 package c195pa.controllers;
 
+import c195pa.AMS;
 import static c195pa.controllers.MainScreenController.MODIFY_CUST_ID;
 import c195pa.models.Customer;
-import static c195pa.models.Database.initAllCountries;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -61,7 +60,7 @@ public class ModifyCustController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         Customer modifyCust = null;
         try {
-            custCountry.setItems(initAllCountries());
+            custCountry.setItems(AMS.initAllCountries());
             modifyCust = new Customer(MODIFY_CUST_ID);
             custName.setText(modifyCust.getName());
             custAddress.setText(modifyCust.getAddress());
