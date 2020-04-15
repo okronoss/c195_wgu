@@ -5,7 +5,6 @@
  */
 package c195pa.models;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,11 +50,7 @@ public class Database {
             int addressId = rs.getInt("addressId");
             String name = rs.getString("customerName");
             boolean active = rs.getBoolean("active");
-            Date createDate = rs.getDate("createDate");
-            String createdBy = rs.getString("createdBy");
-            Date lastUpdate = rs.getDate("lastUpdate");
-            String lastUpdateBy = rs.getString("lastUpdateBy");
-            allCustomers.add(new Customer(id, addressId, name, active, createDate, createdBy, lastUpdate, lastUpdateBy));
+            allCustomers.add(new Customer(id, addressId, name, active));
         }
         
         return allCustomers;

@@ -26,11 +26,7 @@ public class C195pa extends Application {
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
-        stage.show();
-        
-        // console testing
-//        System.out.println(ZoneId.of("UTC"));
-//        System.out.println(ZoneId.systemDefault());
+        stage.show();        
     }
 
     /**

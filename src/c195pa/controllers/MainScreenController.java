@@ -42,8 +42,8 @@ import javafx.stage.Stage;
  * @author alex
  */
 public class MainScreenController implements Initializable {
-    public static int modifyCustId;
-    public static int modifyApptId;
+    public static int MODIFY_CUST_ID;
+    public static int MODIFY_APPT_ID;
     
     @FXML
     private TextField custSearch;
@@ -247,7 +247,7 @@ public class MainScreenController implements Initializable {
         int height = 600;
         
         if (custTable.getSelectionModel().getSelectedItem() != null) {        
-            modifyCustId = custTable.getSelectionModel().getSelectedItem().getId();
+            MODIFY_CUST_ID = custTable.getSelectionModel().getSelectedItem().getId();
             switchScene(button, fxmlFile, title, width, height);
         } else {
             Alert alertFailed = new Alert(Alert.AlertType.ERROR);
