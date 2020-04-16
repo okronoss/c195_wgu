@@ -5,13 +5,21 @@
  */
 package c195pa.models;
 
-import c195pa.AMS;
+import static c195pa.AMS.USER;
+import static c195pa.AMS.connect;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -35,7 +43,7 @@ public class Appointment {
     private final String lastUpdateBy;
     
     public Appointment (int apptId) throws SQLException {
-        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT * FROM appointment WHERE appointmentId='" + apptId + "';");
+        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM appointment WHERE appointmentId='" + apptId + "';");
         
         rs.next();
         this.id = rs.getInt("appointmentId");
@@ -73,6 +81,10 @@ public class Appointment {
         this.lastUpdateBy = lastUpdateBy;
     }
     
+    public int getId() {
+        return this.id;
+    }
+    
     public String getTitle() {
         return this.title;
     }
@@ -89,6 +101,31 @@ public class Appointment {
         return this.end;
     }
     
+    public static ObservableList<String> getAllLocations() {
+        ObservableList<String> locations = FXCollections.observableArrayList("Phoenix, Arizona", "New York, New York", "London, England");
+
+        return locations;
+    }
+    
+    public static DayOfWeek[] getClosedDays() {
+        DayOfWeek[] closedDays = {DayOfWeek.SUNDAY, DayOfWeek.SATURDAY};
+        return closedDays;
+    }
+    
+    public static ObservableList<String> getHours() {
+        ObservableList<String> hours = FXCollections.observableArrayList();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");
+        LocalTime start = LocalTime.of(8, 0, 0, 0);
+        LocalTime end = LocalTime.of(17, 0, 0, 0);
+        
+        for (LocalTime i = start; i.isBefore(end) || i.equals(end); i = i.plusMinutes(30)) {
+            hours.add(i.format(dtf));
+            i.plusMinutes(30);
+        }
+        
+        return hours;
+    }
+    
     public SimpleStringProperty getTitleProperty () {
         return new SimpleStringProperty(this.title);
     }
@@ -99,5 +136,47 @@ public class Appointment {
     
     public SimpleObjectProperty getStartProperty () {
         return new SimpleObjectProperty(this.start);
+    }
+    
+    public static void insertAppointment(int customerId, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end) throws SQLException {
+        String un = USER.getUsername();
+        int userId = USER.getId();
+        Connection conn = connect();
+        
+        ZonedDateTime utcEnd = start.withZoneSameLocal(ZoneId.of("UTC"));
+        
+        Timestamp tsStart = Timestamp.valueOf(start.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsEnd = Timestamp.valueOf(end.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        
+        conn.createStatement().executeUpdate("INSERT INTO appointment (customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
+            + "VALUES('" + customerId + "', '" + userId + "', '" + title + "', '" + description + "', '" + location + "', '" + contact + "', '" + type + "', '" + url + "', '" + tsStart + "', '" + tsEnd + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+    }
+    
+    public static void updateAppointment(int customerId, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end) throws SQLException {
+//        String un = USER.getUsername();
+//        int userId = USER.getId();
+//        Connection conn = connect();
+//        
+//        ZonedDateTime utcEnd = start.withZoneSameLocal(ZoneId.of("UTC"));
+//        
+//        Timestamp tsStart = Timestamp.valueOf(start.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+//        Timestamp tsEnd = Timestamp.valueOf(end.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+//        
+//        conn.createStatement().executeUpdate("INSERT INTO appointment (customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
+//            + "VALUES('" + customerId + "', '" + userId + "', '" + title + "', '" + description + "', '" + location + "', '" + contact + "', '" + type + "', '" + url + "', '" + tsStart + "', '" + tsEnd + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+    }
+    
+    public static boolean deleteAppointment(int appointmentId) throws SQLException {
+        boolean success = false;
+        Connection conn = connect();
+        
+        try {
+            conn.createStatement().executeUpdate("DELETE FROM appointment WHERE appointmentId='" + appointmentId + "';");
+            success = true;
+        } catch (SQLException e) {
+            System.out.println("No Appointment Found.");
+        }
+        
+        return success;
     }
 }

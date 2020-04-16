@@ -5,8 +5,12 @@
  */
 package c195pa.controllers;
 
-import c195pa.AMS;
+import static c195pa.AMS.getAppointments;
+import static c195pa.AMS.getCustomers;
+import static c195pa.AMS.initAllAppts;
+import static c195pa.AMS.initAllCusts;
 import c195pa.models.Appointment;
+import static c195pa.models.Appointment.deleteAppointment;
 import c195pa.models.Customer;
 import java.io.IOException;
 import java.net.URL;
@@ -129,8 +133,8 @@ public class MainScreenController implements Initializable {
         });
 
         try {
-            custTable.setItems(AMS.initAllCusts());
-            apptTable.setItems(AMS.initAllAppts());
+            custTable.setItems(initAllCusts());
+            apptTable.setItems(initAllAppts());
         } catch (SQLException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -187,7 +191,7 @@ public class MainScreenController implements Initializable {
     private void filterCusts() {
         ObservableList<Customer> searchResults;
         
-        searchResults = AMS.getCustomers(custSearch.getText(), showInactive.isSelected());
+        searchResults = getCustomers(custSearch.getText(), showInactive.isSelected());
         
         custTable.setItems(searchResults);
     }
@@ -197,7 +201,7 @@ public class MainScreenController implements Initializable {
         ObservableList<Appointment> searchResults;
         RadioButton selectedRb = (RadioButton) apptTime.getSelectedToggle();
         
-        searchResults = AMS.getAppointments(apptSearch.getText(), selectedRb.getText());
+        searchResults = getAppointments(apptSearch.getText(), selectedRb.getText());
         
         apptTable.setItems(searchResults);
     }
@@ -217,8 +221,8 @@ public class MainScreenController implements Initializable {
             Optional<ButtonType> result = confirmDiag.showAndWait();
             if (result.get() == ButtonType.OK){
                 if(Customer.toggleActive(inactiveCust.getId())) {
-                    AMS.initAllCusts();
-                    AMS.initAllAppts();
+                    initAllCusts();
+                    initAllAppts();
                 } else {
                     Alert alertFailed = new Alert(Alert.AlertType.ERROR);
                     alertFailed.setTitle("Error");
@@ -265,8 +269,37 @@ public class MainScreenController implements Initializable {
     }
 
     @FXML
-    private void deleteAppt(ActionEvent event) {
-        // delete slected appointment
+    private void deleteAppt(ActionEvent event) throws SQLException {
+        if (apptTable.getSelectionModel().getSelectedItem() != null) {
+            Appointment delAppt = apptTable.getSelectionModel().getSelectedItem();
+
+            Alert confirmDiag = new Alert(Alert.AlertType.CONFIRMATION);
+
+            confirmDiag.setTitle("Delete Appointment");
+            confirmDiag.setHeaderText("Are you sure?");
+            confirmDiag.setContentText("This will delete this appointment.\n "
+                    + "Are you sure you want to delete this appointment?");
+
+            Optional<ButtonType> result = confirmDiag.showAndWait();
+            if (result.get() == ButtonType.OK){
+                if(deleteAppointment(delAppt.getId())) {
+                    initAllAppts();
+                } else {
+                    Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+                    alertFailed.setTitle("Error");
+                    alertFailed.setHeaderText("Update Failed");
+                    alertFailed.setContentText("Unable to update database.");
+                    alertFailed.showAndWait();
+                }
+            }
+        } else {
+            Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+            alertFailed.setTitle("Error");
+            alertFailed.setHeaderText("Invalid Customer");
+            alertFailed.setContentText("Please select a customer to modify.");
+
+            alertFailed.showAndWait();
+        }
     }
     
     private void switchScene(Button button, String fxmlFile, String title, int width, int height) throws IOException {

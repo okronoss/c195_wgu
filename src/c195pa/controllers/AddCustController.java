@@ -5,8 +5,8 @@
  */
 package c195pa.controllers;
 
-import c195pa.AMS;
 import c195pa.models.Customer;
+import static c195pa.models.Customer.initAllCountries;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -59,7 +59,7 @@ public class AddCustController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            custCountry.setItems(AMS.initAllCountries());
+            custCountry.setItems(initAllCountries());
         } catch (SQLException ex) {
             Logger.getLogger(AddCustController.class.getName()).log(Level.SEVERE, null, ex);
         }

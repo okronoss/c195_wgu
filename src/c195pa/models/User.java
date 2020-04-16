@@ -5,7 +5,8 @@
  */
 package c195pa.models;
 
-import c195pa.AMS;
+import static c195pa.AMS.USER;
+import static c195pa.AMS.connect;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -32,7 +33,7 @@ public class User {
      * @throws SQLException
      */
     public User (int userId) throws SQLException {
-        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT * FROM user WHERE userId='" + userId + "';");
+        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM user WHERE userId='" + userId + "';");
         
         rs.next();
         this.id = rs.getInt("userId");
@@ -51,6 +52,14 @@ public class User {
      */
     public String getUsername () {
         return this.username;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getId () {
+        return this.id;
     }
 
     /**
@@ -102,11 +111,11 @@ public class User {
      */
     public static synchronized boolean authUser(String username, String password) throws SQLException {
         boolean valid = false;
-        ResultSet rs = AMS.connect().createStatement().executeQuery("SELECT * FROM  user WHERE userName='" + username +"' AND password='" + password + "';");
+        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM  user WHERE userName='" + username +"' AND password='" + password + "';");
 
         if (rs.next()) {
             valid = true;
-            AMS.USER = new User(rs.getInt("userId"));
+            USER = new User(rs.getInt("userId"));
         }
         
         return valid;

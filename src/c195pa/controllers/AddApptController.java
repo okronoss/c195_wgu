@@ -5,13 +5,22 @@
  */
 package c195pa.controllers;
 
-import c195pa.AMS;
+import static c195pa.AMS.getAppointments;
+import static c195pa.AMS.initActiveCustNames;
+import static c195pa.AMS.initAllAppts;
 import c195pa.models.Appointment;
+import static c195pa.models.Appointment.getAllLocations;
+import static c195pa.models.Appointment.getClosedDays;
+import static c195pa.models.Appointment.getHours;
+import static c195pa.models.Appointment.insertAppointment;
+import static c195pa.models.Customer.getId;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -32,6 +41,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
@@ -40,7 +50,6 @@ import javafx.stage.Stage;
  * @author alex
  */
 public class AddApptController implements Initializable {
-    DayOfWeek[] closedDays = {DayOfWeek.SUNDAY, DayOfWeek.SATURDAY};
 
     @FXML
     private ComboBox<String> custField;
@@ -78,6 +87,8 @@ public class AddApptController implements Initializable {
     private TableColumn<Appointment, ZonedDateTime> apptTimeCol;
     @FXML
     private TextField apptSearch;
+    @FXML
+    private Text errText;
 
     /**
      * Initializes the controller class.
@@ -114,7 +125,8 @@ public class AddApptController implements Initializable {
             }
         });
         try {
-            apptTable.setItems(AMS.initAllAppts());
+            apptTable.setItems(initAllAppts());
+            custField.setItems(initActiveCustNames());
         } catch (SQLException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -122,18 +134,18 @@ public class AddApptController implements Initializable {
         apptSearch.textProperty().addListener(obs -> filterAppt());
         filterAppt();
         
-        // fill in combobox options
-//        custField.setItems(initAllCusts());
-//        locationField.setItems();
-//        startTimeField.setItems();
-//        endTimeField.setItems();
+        locationField.setItems(getAllLocations());
+        startTimeField.setItems(getHours());
+        endTimeField.setItems(getHours());
         dateField.setDayCellFactory(picker -> new DateCell() {
+            @Override
             public void updateItem(LocalDate item, boolean isEmpty) {
                 super.updateItem(item, isEmpty);
                 LocalDate today = LocalDate.now();
                 setDisable(isEmpty || item.compareTo(today) < 0);
-                for (int i = 0; i < closedDays.length; ++i) {
-                    setDisable(isDisable() || item.getDayOfWeek() == closedDays[i]);
+                DayOfWeek[] closed = (DayOfWeek[]) getClosedDays();
+                for (int i = 0; i < closed.length; ++i) {
+                    setDisable(isDisable() || item.getDayOfWeek() == closed[i]);
                 }
             }
         });
@@ -141,11 +153,54 @@ public class AddApptController implements Initializable {
 
 
     @FXML
-    private void saveAppt(ActionEvent event) throws IOException {
-        
+    private void saveAppt(ActionEvent event) throws IOException, SQLException {
         // insert appointment
-//        insertAppointment();
-        returnToMainScreen(event);
+        int customerId = -1;
+        String title = titleField.getText();
+        String description = descriptionField.getText();
+        String location = locationField.getValue();
+        String contact = contactField.getText();
+        String type = typeField.getText();
+        String url = urlField.getText();
+        LocalDate date = dateField.getValue();
+        LocalTime startTime;
+        LocalTime endTime;
+        ZonedDateTime start = null;
+        ZonedDateTime end = null;
+        boolean valid = true;
+        
+        errText.setVisible(false);
+        
+        if (custField.getValue() == null) {
+            errText.setText("Customer is Required.");
+            errText.setVisible(true);
+            valid = false;
+        } else {
+            customerId = getId(custField.getValue());
+        }
+        
+        if (type.isEmpty()) {
+            errText.setText("Type is Required.");
+            errText.setVisible(true);
+            valid = false;
+        }
+        
+        if (date == null || startTimeField.getValue() == null || endTimeField.getValue() == null) {
+            errText.setText("Date, Start Time, and End Time is Required.");
+            errText.setVisible(true);
+            valid = false;
+        } else {
+            startTime = LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) ;
+            endTime = LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a"));
+            
+            start = ZonedDateTime.of(date, startTime, ZoneId.systemDefault());
+            end = ZonedDateTime.of(date, endTime, ZoneId.systemDefault());
+        }
+
+        if (valid) {
+            insertAppointment(customerId, title, description, location, contact, type, url, start, end);
+            returnToMainScreen(event);
+        }    
     }
 
     @FXML
@@ -163,11 +218,24 @@ public class AddApptController implements Initializable {
     private void filterAppt() {
         ObservableList<Appointment> searchResults;
         
-        searchResults = AMS.getAppointments(apptSearch.getText());
+        searchResults = getAppointments(apptSearch.getText());
         
         apptTable.setItems(searchResults);
     }
-    
+
+    @FXML
+    private void validateTimes(ActionEvent event) {
+        LocalTime start = startTimeField.getValue() != null ? LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) : null ;
+        LocalTime end = endTimeField.getValue() != null ? LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) : null;
+        
+        errText.setVisible(false);
+
+        if (start != null && end != null && (start.isAfter(end) || start.equals(end))) {
+            errText.setVisible(true);
+            endTimeField.setValue(null);
+        }
+    }
+
     private void switchScene(Button button, String fxmlFile, String title, int width, int height) throws IOException {
         Stage stage = (Stage) button.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/" + fxmlFile));

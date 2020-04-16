@@ -5,9 +5,9 @@
  */
 package c195pa.controllers;
 
-import c195pa.AMS;
 import static c195pa.controllers.MainScreenController.MODIFY_CUST_ID;
 import c195pa.models.Customer;
+import static c195pa.models.Customer.initAllCountries;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -58,9 +58,9 @@ public class ModifyCustController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Customer modifyCust = null;
+        Customer modifyCust;
         try {
-            custCountry.setItems(AMS.initAllCountries());
+            custCountry.setItems(initAllCountries());
             modifyCust = new Customer(MODIFY_CUST_ID);
             custName.setText(modifyCust.getName());
             custAddress.setText(modifyCust.getAddress());

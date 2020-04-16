@@ -149,7 +149,7 @@
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </GridPane.margin>
                         </Label>
-                        <ComboBox fx:id="endTimeField" prefWidth="150.0" promptText="End Time" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                        <ComboBox fx:id="endTimeField" onAction="#validateTimes" promptText="End Time" GridPane.columnIndex="1" GridPane.rowIndex="9">
                            <GridPane.margin>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </GridPane.margin>
@@ -159,13 +159,18 @@
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </GridPane.margin>
                         </Label>
-                        <ComboBox fx:id="startTimeField" prefWidth="150.0" promptText="Start Time" GridPane.columnIndex="1" GridPane.rowIndex="8">
+                        <ComboBox fx:id="startTimeField" onAction="#validateTimes" promptText="Start Time" GridPane.columnIndex="1" GridPane.rowIndex="8">
                            <GridPane.margin>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </GridPane.margin>
                         </ComboBox>
                      </children>
                   </GridPane>
+                  <Text fx:id="errText" fill="RED" strokeType="OUTSIDE" strokeWidth="0.0" text="End Time must be after Start Time" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                     <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </GridPane.margin>
+                  </Text>
                   <FlowPane alignment="TOP_RIGHT" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
                      <children>
                         <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#saveAppt" text="Save">

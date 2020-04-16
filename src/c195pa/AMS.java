@@ -12,6 +12,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import javafx.application.Application;
@@ -35,7 +39,6 @@ public class AMS extends Application {
     private static Connection conn = null;
     private static final ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
     private static final ObservableList<Appointment> allAppointments = FXCollections.observableArrayList();
-    private static final ObservableList<String> allCountries = FXCollections.observableArrayList();
     public static User USER = null;
     
     @Override
@@ -45,7 +48,7 @@ public class AMS extends Application {
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
-        stage.show();        
+        stage.show();
     }
 
     /**
@@ -79,6 +82,17 @@ public class AMS extends Application {
         return allCustomers;
     }
 
+    public static ObservableList<String> initActiveCustNames () throws SQLException {
+        ObservableList<String> activeCustomers = FXCollections.observableArrayList();
+        ResultSet rs = connect().createStatement().executeQuery("SELECT customerName FROM customer WHERE active=1;");
+        
+        while (rs.next()) {
+            activeCustomers.add(rs.getString("customerName"));
+        }
+        
+        return activeCustomers;
+    }
+
     public static ObservableList<Appointment> initAllAppts () throws SQLException {
         ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM appointment;");
         
@@ -107,18 +121,6 @@ public class AMS extends Application {
         return allAppointments;
     }
     
-    public static ObservableList<String> initAllCountries () throws SQLException {
-        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM country;");
-        
-        if (!allCountries.isEmpty()) allCountries.clear();
-        
-        while (rs.next()) {
-            allCountries.add(rs.getString("country"));
-        }
-        
-        return allCountries;
-    }
-
     public static ObservableList<Customer> getCustomers(String src, boolean showInactive) {
         FilteredList<Customer> searchResults = new FilteredList<>(allCustomers, p -> true);
         
@@ -193,5 +195,4 @@ public class AMS extends Application {
         
         return searchResults;
     }
-
 }
