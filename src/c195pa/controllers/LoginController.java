@@ -9,6 +9,7 @@ import static c195pa.models.User.authUser;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,6 +18,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -39,12 +41,27 @@ public class LoginController implements Initializable {
     private Button loginBtn;
     @FXML
     private Text errorMessage;
+    @FXML
+    private Text title;
+    @FXML
+    private Label usernameLabel;
+    @FXML
+    private Label passwordLabel;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        if (Locale.getDefault() == Locale.forLanguageTag("es-ES")) {
+            title.setText("Sistema de Citas");
+            usernameLabel.setText("Nombre de Usuario");
+            usernameField.setPromptText("Nombre de Usuario");
+            passwordLabel.setText("Contraseña");
+            passwordField.setPromptText("Contraseña");
+            loginBtn.setText("iniciar sesión");
+            cancelBtn.setText("anular");
+        }
     }
 
     @FXML

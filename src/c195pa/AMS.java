@@ -74,11 +74,11 @@ public class AMS extends Application {
     }
 
     public static ObservableList<Customer> initAllCusts() throws SQLException {
-        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM customer;");
+        ResultSet rs = connect().createStatement().executeQuery(""
+                + "SELECT * "
+                + "FROM customer;");
 
-        if (!allCustomers.isEmpty()) {
-            allCustomers.clear();
-        }
+        if (!allCustomers.isEmpty()) allCustomers.clear();
 
         while (rs.next()) {
             int id = rs.getInt("customerId");
@@ -103,7 +103,9 @@ public class AMS extends Application {
     }
 
     public static ObservableList<Appointment> initAllAppts() throws SQLException {
-        ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM appointment;");
+        ResultSet rs = connect().createStatement().executeQuery(""
+                + "SELECT * "
+                + "FROM appointment;");
 
         if (!allAppointments.isEmpty()) {
             allAppointments.clear();
