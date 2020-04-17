@@ -9,13 +9,15 @@ import static c195pa.AMS.APPT_INTERVAL;
 import static c195pa.AMS.CLOSED_DAYS;
 import static c195pa.AMS.CLOSE_HOUR;
 import static c195pa.AMS.LOCATIONS;
+import static c195pa.AMS.MODIFY_APPT_ID;
 import static c195pa.AMS.OPEN_HOUR;
 import static c195pa.AMS.getAppointments;
 import static c195pa.AMS.initActiveCustNames;
 import static c195pa.AMS.initAllAppts;
 import c195pa.models.Appointment;
 import static c195pa.models.Appointment.getHours;
-import static c195pa.models.Appointment.insertAppointment;
+import static c195pa.models.Appointment.updateAppointment;
+import c195pa.models.Customer;
 import static c195pa.models.Customer.getId;
 import java.io.IOException;
 import java.net.URL;
@@ -51,7 +53,7 @@ import javafx.stage.Stage;
  *
  * @author alex
  */
-public class AddApptController implements Initializable {
+public class ModifyApptController implements Initializable {
 
     @FXML
     private ComboBox<String> custField;
@@ -74,6 +76,8 @@ public class AddApptController implements Initializable {
     @FXML
     private ComboBox<String> startTimeField;
     @FXML
+    private Text errText;
+    @FXML
     private Button saveBtn;
     @FXML
     private Button cancelBtn;
@@ -89,8 +93,11 @@ public class AddApptController implements Initializable {
     private TableColumn<Appointment, ZonedDateTime> apptTimeCol;
     @FXML
     private TextField apptSearch;
-    @FXML
-    private Text errText;
+    private Appointment modifyAppt;
+
+    public ModifyApptController() throws SQLException {
+        this.modifyAppt = new Appointment(MODIFY_APPT_ID);
+    }
 
     /**
      * Initializes the controller class.
@@ -150,6 +157,51 @@ public class AddApptController implements Initializable {
                 }
             }
         });
+
+        // fill in current values
+        try {
+            custField.setValue(Customer.getName(modifyAppt.getCustId()));
+            titleField.setText(modifyAppt.getTitle());
+            descriptionField.setText(modifyAppt.getDescription());
+            locationField.setValue(modifyAppt.getLocation());
+            contactField.setText(modifyAppt.getContact());
+            typeField.setText(modifyAppt.getType());
+            urlField.setText(modifyAppt.getUrl());
+            dateField.setValue(LocalDate.from(modifyAppt.getStart()));
+            startTimeField.setValue(modifyAppt.getStart().format(DateTimeFormatter.ofPattern("hh:mm a")));
+            endTimeField.setValue(modifyAppt.getEnd().format(DateTimeFormatter.ofPattern("hh:mm a")));
+        } catch (SQLException ex) {
+            Logger.getLogger(AddCustController.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                returnToMainScreen();
+            } catch (IOException ex1) {
+                Logger.getLogger(ModifyCustController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+    }
+
+    @FXML
+    private void validateTimes(ActionEvent event) {
+        LocalTime start = startTimeField.getValue() != null ? LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) : null;
+        LocalTime end = endTimeField.getValue() != null ? LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) : null;
+
+        errText.setVisible(false);
+
+        if (start != null && end == null) {
+            endTimeField.setItems(getHours(LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")), CLOSE_HOUR));
+        }
+
+        if (start == null && end != null) {
+            startTimeField.setItems(getHours(OPEN_HOUR, LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a"))));
+        }
+
+        if (start != null && end != null && (start.isAfter(end) || start.equals(end))) {
+            errText.setText("Start time cannot be be after or equal to end time.");
+            errText.setVisible(true);
+            endTimeField.setValue(null);
+            startTimeField.setItems(getHours(OPEN_HOUR, CLOSE_HOUR.minusMinutes(APPT_INTERVAL)));
+            endTimeField.setItems(getHours(OPEN_HOUR.plusMinutes(APPT_INTERVAL), CLOSE_HOUR));
+        }
     }
 
     @FXML
@@ -198,13 +250,13 @@ public class AddApptController implements Initializable {
         }
 
         if (valid) {
-            insertAppointment(customerId, title, description, location, contact, type, url, start, end);
-            returnToMainScreen(event);
+            updateAppointment(modifyAppt.getId(), customerId, title, description, location, contact, type, url, start, end);
+            returnToMainScreen();
         }
     }
 
     @FXML
-    private void returnToMainScreen(ActionEvent event) throws IOException {
+    private void returnToMainScreen() throws IOException {
         Button button = cancelBtn;
         String fxmlFile = "MainScreen.fxml";
         String title = "Appointment Management System";
@@ -221,30 +273,6 @@ public class AddApptController implements Initializable {
         searchResults = getAppointments(apptSearch.getText());
 
         apptTable.setItems(searchResults);
-    }
-
-    @FXML
-    private void validateTimes(ActionEvent event) {
-        LocalTime start = startTimeField.getValue() != null ? LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) : null;
-        LocalTime end = endTimeField.getValue() != null ? LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) : null;
-
-        errText.setVisible(false);
-
-        if (start != null && end == null) {
-            endTimeField.setItems(getHours(LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")), CLOSE_HOUR));
-        }
-
-        if (start == null && end != null) {
-            startTimeField.setItems(getHours(OPEN_HOUR, LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a"))));
-        }
-
-        if (start != null && end != null && (start.isAfter(end) || start.equals(end))) {
-            errText.setText("Start time cannot be be after or equal to end time.");
-            errText.setVisible(true);
-            endTimeField.setValue(null);
-            startTimeField.setItems(getHours(OPEN_HOUR, CLOSE_HOUR.minusMinutes(APPT_INTERVAL)));
-            endTimeField.setItems(getHours(OPEN_HOUR.plusMinutes(APPT_INTERVAL), CLOSE_HOUR));
-        }
     }
 
     private void switchScene(Button button, String fxmlFile, String title, int width, int height) throws IOException {

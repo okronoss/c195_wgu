@@ -19,20 +19,21 @@ import javafx.collections.ObservableList;
  * @author alex
  */
 public final class Customer {
+
     private final int id;
     private final int addressId;
     private final String name;
     private final boolean active;
     private final String phoneNum;
-    
-    public Customer (int custId) throws SQLException {
+
+    public Customer(int custId) throws SQLException {
         ResultSet rs = connect().createStatement().executeQuery(""
                 + "SELECT c.customerId, c.addressId, c.customerName, c.active, a.phone "
                 + "FROM customer c "
                 + "INNER JOIN address a "
                 + "ON c.addressId = a.addressId "
                 + "WHERE c.customerId='" + custId + "';");
-        
+
         rs.next();
         this.id = rs.getInt("customerId");
         this.addressId = rs.getInt("addressId");
@@ -40,46 +41,53 @@ public final class Customer {
         this.active = rs.getBoolean("active");
         this.phoneNum = rs.getString("phone");
     }
-    
-    public Customer (int custId, int addressId, String name, boolean active) throws SQLException {
+
+    public Customer(int custId, int addressId, String name, boolean active) throws SQLException {
         this.id = custId;
         this.addressId = addressId;
         this.name = name;
         this.active = active;
         this.phoneNum = getPhone(addressId);
     }
-    
+
     public int getId() {
         return this.id;
     }
-    
+
     public static int getId(String custName) throws SQLException {
-        ResultSet rs = connect().createStatement().executeQuery("SELECT customerId from customer WHERE customerName='" + custName + "';");
+        ResultSet rs = connect().createStatement().executeQuery("SELECT customerId FROM customer WHERE customerName='" + custName + "';");
         int id = rs.next() ? rs.getInt("customerId") : -1;
-        
+
         return id;
     }
-    
+
     public String getName() {
         return this.name;
     }
-    
+
+    public static String getName(int id) throws SQLException {
+        ResultSet rs = connect().createStatement().executeQuery("SELECT customerName FROM customer WHERE customerId='" + id + "';");
+        String custName = rs.next() ? rs.getString("customerName") : "";
+
+        return custName;
+    }
+
     public SimpleStringProperty getNameProperty() {
         return new SimpleStringProperty(this.name);
     }
-    
+
     public Boolean getStatus() {
         return this.active;
     }
 
     public SimpleStringProperty getStatusProperty() {
-        return active ?  new SimpleStringProperty("Active") :  new SimpleStringProperty("Inactive");
+        return active ? new SimpleStringProperty("Active") : new SimpleStringProperty("Inactive");
     }
 
     public String getPhone() {
         return this.phoneNum;
     }
-    
+
     public String getPhone(int addressId) throws SQLException {
         ResultSet rs = connect().createStatement().executeQuery("SELECT phone FROM address WHERE addressId='" + addressId + "';");
         return rs.next() ? rs.getString("phone") : "";
@@ -113,7 +121,7 @@ public final class Customer {
                 + "WHERE a.addressId='" + this.addressId + "';");
         return rs.next() ? rs.getString("city") : "";
     }
-    
+
     public String getCountry() throws SQLException {
         ResultSet rs = connect().createStatement().executeQuery(""
                 + "SELECT co.country "
@@ -123,33 +131,35 @@ public final class Customer {
                 + "INNER JOIN address a "
                 + "ON ci.cityId = a.cityId "
                 + "WHERE a.addressId='" + this.addressId + "';");
-        
+
         return rs.next() ? rs.getString("country") : "";
     }
-    
-    public static ObservableList<String> initAllCountries () throws SQLException {
+
+    public static ObservableList<String> initAllCountries() throws SQLException {
         ObservableList<String> allCountries = FXCollections.observableArrayList();
-        
+
         ResultSet rs = connect().createStatement().executeQuery("SELECT * FROM country;");
-        
-        if (!allCountries.isEmpty()) allCountries.clear();
-        
+
+        if (!allCountries.isEmpty()) {
+            allCountries.clear();
+        }
+
         while (rs.next()) {
             allCountries.add(rs.getString("country"));
         }
-        
+
         return allCountries;
     }
 
-    public static void insertCustomer (String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
+    public static void insertCustomer(String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
         String un = USER.getUsername();
         String countryId;
         Connection conn = connect();
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM country WHERE country='" + country + "'; ");
-        
+
         try {
             conn.setAutoCommit(false);
-            
+
             if (rs.next()) {
                 countryId = "'" + rs.getString("countryId") + "'";
             } else {
@@ -160,9 +170,9 @@ public final class Customer {
             conn.createStatement().executeUpdate("INSERT INTO city (city, countryId, createDate, createdBy, lastUpdate, lastUpdateBy) "
                     + "VALUES('" + city + "', " + countryId + ", NOW(), '" + un + "', NOW(), '" + un + "');");
             conn.createStatement().executeUpdate("INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                + "VALUES('" + address + "', '" + address2 + "', LAST_INSERT_ID(), '" + postalCode + "', '" + phoneNum + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+                    + "VALUES('" + address + "', '" + address2 + "', LAST_INSERT_ID(), '" + postalCode + "', '" + phoneNum + "', NOW(), '" + un + "', NOW(), '" + un + "');");
             conn.createStatement().executeUpdate("INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                + "VALUES('" + name + "', LAST_INSERT_ID(), 1, NOW(), '" + un + "', NOW(), '" + un + "');");
+                    + "VALUES('" + name + "', LAST_INSERT_ID(), 1, NOW(), '" + un + "', NOW(), '" + un + "');");
             conn.commit();
             conn.setAutoCommit(true);
         } catch (SQLException e) {
@@ -170,14 +180,13 @@ public final class Customer {
         }
     }
 
-    public static void updateCustomer (int custId, String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
+    public static void updateCustomer(int custId, String name, String address, String address2, String postalCode, String city, String country, String phoneNum) throws SQLException {
         String un = USER.getUsername();
         Connection conn = connect();
         String countryId;
         int cityId;
         int addressId;
-        
-        
+
         try {
             ResultSet addressRs = conn.createStatement().executeQuery(""
                     + "SELECT a.cityId, a.addressId "
@@ -186,7 +195,7 @@ public final class Customer {
                     + "ON c.addressId = a.addressId "
                     + "WHERE c.customerId='" + custId + "'; ");
             ResultSet countryRs = conn.createStatement().executeQuery("SELECT * FROM country WHERE country='" + country + "'; ");
-            
+
             if (addressRs.next()) {
                 cityId = addressRs.getInt("cityId");
                 addressId = addressRs.getInt("addressId");
@@ -194,9 +203,9 @@ public final class Customer {
                 System.err.println("Update failed.");
                 throw new SQLException();
             }
-            
+
             conn.setAutoCommit(false);
-            
+
             if (countryRs.next()) {
                 countryId = "'" + countryRs.getString("countryId") + "'";
             } else {
@@ -238,13 +247,13 @@ public final class Customer {
             conn.rollback();
         }
     }
-    
+
     public static boolean toggleActive(int id) throws SQLException {
         String un = USER.getUsername();
         Connection conn = connect();
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM customer WHERE customerId='" + id + "';");
         boolean saved = false;
-        
+
         if (rs.next()) {
             if (rs.getBoolean("active")) {
                 // they are currently active.
@@ -259,7 +268,7 @@ public final class Customer {
                     conn.commit();
                     // turn auto-commit back on
                     conn.setAutoCommit(true);
-                    
+
                     saved = true;
                 } catch (SQLException e) {
                     // on failure rollback changes
@@ -273,7 +282,7 @@ public final class Customer {
         } else {
             System.err.println("Error: No Customer found.");
         }
-        
+
         return saved;
     }
 }

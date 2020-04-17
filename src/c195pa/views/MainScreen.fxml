@@ -20,181 +20,181 @@
 <?import javafx.scene.text.Text?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.241" xmlns:fx="http://javafx.com/fxml/1" fx:controller="c195pa.controllers.MainScreenController">
-   <children>
-      <MenuBar>
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#addCust" text="New Customer" />
-                  <MenuItem mnemonicParsing="false" onAction="#addAppt" text="New Appointment" />
-                  <MenuItem mnemonicParsing="false" onAction="#exit" text="Quit" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Reports">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#generateApptTypes" text="Appointment Types by Month" />
-                  <MenuItem mnemonicParsing="false" onAction="#generateConsultantSch" text="Consultant Schedules" />
-                  <MenuItem mnemonicParsing="false" onAction="#generateCustContact" text="Customer Contact List" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <GridPane prefHeight="572.0" prefWidth="800.0">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
-          <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints vgrow="SOMETIMES" />
-          <RowConstraints percentHeight="90.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Appointment Management System" GridPane.columnSpan="2" GridPane.halignment="CENTER">
-               <font>
-                  <Font size="24.0" />
-               </font>
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </GridPane.margin>
-            </Text>
-            <GridPane GridPane.rowIndex="1">
-              <columnConstraints>
+    <children>
+        <MenuBar>
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#addCust" text="New Customer" />
+                        <MenuItem mnemonicParsing="false" onAction="#addAppt" text="New Appointment" />
+                        <MenuItem mnemonicParsing="false" onAction="#exit" text="Quit" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Reports">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#generateApptTypes" text="Appointment Types by Month" />
+                        <MenuItem mnemonicParsing="false" onAction="#generateConsultantSch" text="Consultant Schedules" />
+                        <MenuItem mnemonicParsing="false" onAction="#generateCustContact" text="Customer Contact List" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <GridPane prefHeight="572.0" prefWidth="800.0">
+            <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
                 <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints percentHeight="13.0" vgrow="SOMETIMES" />
-                <RowConstraints percentHeight="77.0" vgrow="SOMETIMES" />
-                <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Customers">
-                     <font>
-                        <Font size="20.0" />
-                     </font>
-                     <GridPane.margin>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="90.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Appointment Management System" GridPane.columnSpan="2" GridPane.halignment="CENTER">
+                    <font>
+                        <Font size="24.0" />
+                    </font>
+                    <GridPane.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </GridPane.margin>
-                  </Text>
-                  <FlowPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
-                     <children>
-                        <TextField fx:id="custSearch" onAction="#filterCusts" onInputMethodTextChanged="#filterCusts" promptText="Search">
-                           <FlowPane.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </FlowPane.margin>
-                        </TextField>
-                        <CheckBox fx:id="showInactive" mnemonicParsing="false" onAction="#filterCusts" text="Show Inactive">
-                           <FlowPane.margin>
-                              <Insets left="10.0" right="10.0" />
-                           </FlowPane.margin>
-                        </CheckBox>
-                     </children>
-                  </FlowPane>
-                  <TableView fx:id="custTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
-                    <columns>
-                      <TableColumn fx:id="custNameCol" prefWidth="255.0" text="Customer Name" />
-                      <TableColumn fx:id="custPhoneCol" minWidth="0.0" prefWidth="128.0" text="Phone Number" />
-                        <TableColumn fx:id="custStatusCol" minWidth="0.0" prefWidth="96.0" text="Status" />
-                    </columns>
-                     <GridPane.margin>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </GridPane.margin>
-                  </TableView>
-                  <FlowPane alignment="TOP_RIGHT" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-                     <children>
-                        <Button fx:id="addCustBtn" mnemonicParsing="false" onAction="#addCust" text="Add">
-                           <FlowPane.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </FlowPane.margin>
-                        </Button>
-                        <Button fx:id="modifyCustBtn" mnemonicParsing="false" onAction="#modifyCust" text="Modify">
-                           <FlowPane.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </FlowPane.margin>
-                        </Button>
-                        <Button fx:id="inactiveCustBtn" mnemonicParsing="false" onAction="#inactiveCust" text="Inactive">
-                           <FlowPane.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </FlowPane.margin>
-                        </Button>
-                     </children>
-                  </FlowPane>
-               </children>
-            </GridPane>
-            <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
-               <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
-               </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints percentHeight="13.0" vgrow="SOMETIMES" />
-                  <RowConstraints percentHeight="77.0" vgrow="SOMETIMES" />
-                  <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-               </rowConstraints>
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Appointments">
-                     <font>
-                        <Font size="20.0" />
-                     </font>
-                     <GridPane.margin>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </GridPane.margin>
-                  </Text>
-                  <FlowPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
-                     <children>
-                        <TextField fx:id="apptSearch" onAction="#filterAppt" onInputMethodTextChanged="#filterAppt" promptText="Search">
-                           <FlowPane.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </FlowPane.margin>
-                        </TextField>
-                        <RadioButton fx:id="apptWeekly" mnemonicParsing="false" onAction="#filterAppt" selected="true" text="Weekly">
-                           <FlowPane.margin>
-                              <Insets left="10.0" right="10.0" />
-                           </FlowPane.margin>
-                           <toggleGroup>
-                              <ToggleGroup fx:id="apptTime" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton fx:id="apptMonthly" mnemonicParsing="false" onAction="#filterAppt" text="Monthly" toggleGroup="$apptTime">
-                           <FlowPane.margin>
-                              <Insets left="10.0" right="10.0" />
-                           </FlowPane.margin>
-                        </RadioButton>
-                     </children>
-                  </FlowPane>
-                  <TableView fx:id="apptTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
-                     <columns>
-                        <TableColumn fx:id="apptTitleCol" minWidth="0.0" prefWidth="208.0" text="Title" />
-                        <TableColumn fx:id="apptTypeCol" minWidth="0.0" prefWidth="87.0" text="Type" />
-                        <TableColumn fx:id="apptDateCol" prefWidth="92.0" text="Date" />
-                        <TableColumn fx:id="apptTimeCol" minWidth="0.0" prefWidth="92.0" text="Time" />
-                     </columns>
-                     <GridPane.margin>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </GridPane.margin>
-                  </TableView>
-                  <FlowPane alignment="TOP_RIGHT" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-                     <children>
-                        <Button fx:id="addApptBtn" mnemonicParsing="false" onAction="#addAppt" text="Add">
-                           <FlowPane.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </FlowPane.margin>
-                        </Button>
-                        <Button fx:id="modifyApptBtn" mnemonicParsing="false" onAction="#modifyAppt" text="Modify">
-                           <FlowPane.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </FlowPane.margin>
-                        </Button>
-                        <Button fx:id="deleteApptBtn" mnemonicParsing="false" onAction="#deleteAppt" text="Delete">
-                           <FlowPane.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </FlowPane.margin>
-                        </Button>
-                     </children>
-                  </FlowPane>
-               </children>
-            </GridPane>
-         </children>
-      </GridPane>
-   </children>
+                    </GridPane.margin>
+                </Text>
+                <GridPane GridPane.rowIndex="1">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints percentHeight="13.0" vgrow="SOMETIMES" />
+                        <RowConstraints percentHeight="77.0" vgrow="SOMETIMES" />
+                        <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Customers">
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                            <GridPane.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </GridPane.margin>
+                        </Text>
+                        <FlowPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+                            <children>
+                                <TextField fx:id="custSearch" onAction="#filterCusts" onInputMethodTextChanged="#filterCusts" promptText="Search">
+                                    <FlowPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </FlowPane.margin>
+                                </TextField>
+                                <CheckBox fx:id="showInactive" mnemonicParsing="false" onAction="#filterCusts" text="Show Inactive">
+                                    <FlowPane.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </FlowPane.margin>
+                                </CheckBox>
+                            </children>
+                        </FlowPane>
+                        <TableView fx:id="custTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                            <columns>
+                                <TableColumn fx:id="custNameCol" prefWidth="255.0" text="Customer Name" />
+                                <TableColumn fx:id="custPhoneCol" minWidth="0.0" prefWidth="128.0" text="Phone Number" />
+                                <TableColumn fx:id="custStatusCol" minWidth="0.0" prefWidth="96.0" text="Status" />
+                            </columns>
+                            <GridPane.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </GridPane.margin>
+                        </TableView>
+                        <FlowPane alignment="TOP_RIGHT" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                            <children>
+                                <Button fx:id="addCustBtn" mnemonicParsing="false" onAction="#addCust" text="Add">
+                                    <FlowPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </FlowPane.margin>
+                                </Button>
+                                <Button fx:id="modifyCustBtn" mnemonicParsing="false" onAction="#modifyCust" text="Modify">
+                                    <FlowPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </FlowPane.margin>
+                                </Button>
+                                <Button fx:id="inactiveCustBtn" mnemonicParsing="false" onAction="#inactiveCust" text="Inactive">
+                                    <FlowPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </FlowPane.margin>
+                                </Button>
+                            </children>
+                        </FlowPane>
+                    </children>
+                </GridPane>
+                <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints percentHeight="13.0" vgrow="SOMETIMES" />
+                        <RowConstraints percentHeight="77.0" vgrow="SOMETIMES" />
+                        <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Appointments">
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                            <GridPane.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </GridPane.margin>
+                        </Text>
+                        <FlowPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+                            <children>
+                                <TextField fx:id="apptSearch" onAction="#filterAppt" onInputMethodTextChanged="#filterAppt" promptText="Search">
+                                    <FlowPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </FlowPane.margin>
+                                </TextField>
+                                <RadioButton fx:id="apptWeekly" mnemonicParsing="false" onAction="#filterAppt" selected="true" text="Weekly">
+                                    <FlowPane.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </FlowPane.margin>
+                                    <toggleGroup>
+                                        <ToggleGroup fx:id="apptTime" />
+                                    </toggleGroup>
+                                </RadioButton>
+                                <RadioButton fx:id="apptMonthly" mnemonicParsing="false" onAction="#filterAppt" text="Monthly" toggleGroup="$apptTime">
+                                    <FlowPane.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </FlowPane.margin>
+                                </RadioButton>
+                            </children>
+                        </FlowPane>
+                        <TableView fx:id="apptTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                            <columns>
+                                <TableColumn fx:id="apptTitleCol" minWidth="0.0" prefWidth="208.0" text="Title" />
+                                <TableColumn fx:id="apptTypeCol" minWidth="0.0" prefWidth="87.0" text="Type" />
+                                <TableColumn fx:id="apptDateCol" prefWidth="92.0" text="Date" />
+                                <TableColumn fx:id="apptTimeCol" minWidth="0.0" prefWidth="92.0" text="Time" />
+                            </columns>
+                            <GridPane.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </GridPane.margin>
+                        </TableView>
+                        <FlowPane alignment="TOP_RIGHT" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                            <children>
+                                <Button fx:id="addApptBtn" mnemonicParsing="false" onAction="#addAppt" text="Add">
+                                    <FlowPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </FlowPane.margin>
+                                </Button>
+                                <Button fx:id="modifyApptBtn" mnemonicParsing="false" onAction="#modifyAppt" text="Modify">
+                                    <FlowPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </FlowPane.margin>
+                                </Button>
+                                <Button fx:id="deleteApptBtn" mnemonicParsing="false" onAction="#deleteAppt" text="Delete">
+                                    <FlowPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </FlowPane.margin>
+                                </Button>
+                            </children>
+                        </FlowPane>
+                    </children>
+                </GridPane>
+            </children>
+        </GridPane>
+    </children>
 </VBox>

@@ -5,9 +5,10 @@
  */
 package c195pa.controllers;
 
-import static c195pa.controllers.MainScreenController.MODIFY_CUST_ID;
+import static c195pa.AMS.MODIFY_CUST_ID;
 import c195pa.models.Customer;
 import static c195pa.models.Customer.initAllCountries;
+import static c195pa.models.Customer.updateCustomer;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -52,16 +53,19 @@ public class ModifyCustController implements Initializable {
     private Button cancelBtn;
     @FXML
     private Text errorText;
+    private final Customer modifyCust;
+
+    public ModifyCustController() throws SQLException {
+        this.modifyCust = new Customer(MODIFY_CUST_ID);
+    }
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Customer modifyCust;
         try {
             custCountry.setItems(initAllCountries());
-            modifyCust = new Customer(MODIFY_CUST_ID);
             custName.setText(modifyCust.getName());
             custAddress.setText(modifyCust.getAddress());
             custAddress2.setText(modifyCust.getAddress2());
@@ -81,8 +85,8 @@ public class ModifyCustController implements Initializable {
 
     @FXML
     private void saveCust() throws IOException, SQLException {
-        Customer.updateCustomer(MODIFY_CUST_ID, custName.getText(), custAddress.getText(), custAddress2.getText(), custPostalCode.getText(), custCity.getText(), custCountry.getValue(), custPhone.getText());
-        
+        updateCustomer(modifyCust.getId(), custName.getText(), custAddress.getText(), custAddress2.getText(), custPostalCode.getText(), custCity.getText(), custCountry.getValue(), custPhone.getText());
+
         returnToMainScreen();
     }
 
@@ -93,11 +97,11 @@ public class ModifyCustController implements Initializable {
         String title = "Appointment Management System";
         int width = 1000;
         int height = 600;
-        
+
         switchScene(button, fxmlFile, title, width, height);
 
     }
-    
+
     private void switchScene(Button button, String fxmlFile, String title, int width, int height) throws IOException {
         Stage stage = (Stage) button.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/" + fxmlFile));

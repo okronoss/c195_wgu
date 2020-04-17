@@ -63,7 +63,7 @@ public class AddCustController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(AddCustController.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }    
+    }
 
     @FXML
     private void saveCust(ActionEvent event) throws IOException, SQLException {
@@ -75,49 +75,49 @@ public class AddCustController implements Initializable {
         String country = custCountry.toString();
         String phoneNum = custPhone.toString();
         boolean valid = true;
-        
+
         errorText.setVisible(false);
-        
+
         if (name.isEmpty()) {
             errorText.setText("Name is Required.");
             errorText.setVisible(true);
             valid = false;
         }
-        
+
         if (address.isEmpty()) {
             errorText.setText("Address is Required.");
             errorText.setVisible(true);
             valid = false;
         }
-        
+
         if (postalCode.isEmpty()) {
             errorText.setText("Postal Code is Required.");
             errorText.setVisible(true);
             valid = false;
         }
-        
+
         if (city.isEmpty()) {
             errorText.setText("City is Required.");
             errorText.setVisible(true);
             valid = false;
         }
-        
+
         if (country.isEmpty()) {
             errorText.setText("Country is Required.");
             errorText.setVisible(true);
             valid = false;
         }
-        
+
         if (phoneNum.isEmpty()) {
             errorText.setText("Phone Number is Required.");
             errorText.setVisible(true);
             valid = false;
         }
-        
+
         if (valid) {
             Customer.insertCustomer(name, address, address2, postalCode, city, country, phoneNum);
         }
-        
+
         returnToMainScreen();
     }
 
@@ -128,9 +128,10 @@ public class AddCustController implements Initializable {
         String title = "Appointment Management System";
         int width = 1000;
         int height = 600;
-        
+
         switchScene(button, fxmlFile, title, width, height);
     }
+
     private void switchScene(Button button, String fxmlFile, String title, int width, int height) throws IOException {
         Stage stage = (Stage) button.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/" + fxmlFile));

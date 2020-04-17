@@ -9,6 +9,8 @@ import static c195pa.AMS.getAppointments;
 import static c195pa.AMS.getCustomers;
 import static c195pa.AMS.initAllAppts;
 import static c195pa.AMS.initAllCusts;
+import static c195pa.AMS.MODIFY_APPT_ID;
+import static c195pa.AMS.MODIFY_CUST_ID;
 import c195pa.models.Appointment;
 import static c195pa.models.Appointment.deleteAppointment;
 import c195pa.models.Customer;
@@ -46,9 +48,7 @@ import javafx.stage.Stage;
  * @author alex
  */
 public class MainScreenController implements Initializable {
-    public static int MODIFY_CUST_ID;
-    public static int MODIFY_APPT_ID;
-    
+
     @FXML
     private TextField custSearch;
     @FXML
@@ -138,12 +138,12 @@ public class MainScreenController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         custSearch.textProperty().addListener(obs -> filterCusts());
         filterCusts();
         apptSearch.textProperty().addListener(obs -> filterAppt());
         filterAppt();
-    }    
+    }
 
     @FXML
     private void addCust(ActionEvent event) throws IOException {
@@ -152,7 +152,7 @@ public class MainScreenController implements Initializable {
         String title = "Appointment Management System";
         int width = 500;
         int height = 600;
-        
+
         switchScene(button, fxmlFile, title, width, height);
     }
 
@@ -163,7 +163,7 @@ public class MainScreenController implements Initializable {
         String title = "Appointment Management System";
         int width = 1000;
         int height = 600;
-        
+
         switchScene(button, fxmlFile, title, width, height);
     }
 
@@ -190,19 +190,19 @@ public class MainScreenController implements Initializable {
     @FXML
     private void filterCusts() {
         ObservableList<Customer> searchResults;
-        
+
         searchResults = getCustomers(custSearch.getText(), showInactive.isSelected());
-        
+
         custTable.setItems(searchResults);
     }
-    
+
     @FXML
     private void filterAppt() {
         ObservableList<Appointment> searchResults;
         RadioButton selectedRb = (RadioButton) apptTime.getSelectedToggle();
-        
+
         searchResults = getAppointments(apptSearch.getText(), selectedRb.getText());
-        
+
         apptTable.setItems(searchResults);
     }
 
@@ -219,8 +219,8 @@ public class MainScreenController implements Initializable {
                     + "Are you sure you want to set this customer to inactive?");
 
             Optional<ButtonType> result = confirmDiag.showAndWait();
-            if (result.get() == ButtonType.OK){
-                if(Customer.toggleActive(inactiveCust.getId())) {
+            if (result.get() == ButtonType.OK) {
+                if (Customer.toggleActive(inactiveCust.getId())) {
                     initAllCusts();
                     initAllAppts();
                 } else {
@@ -249,8 +249,8 @@ public class MainScreenController implements Initializable {
         String title = "Appointment Management System";
         int width = 1000;
         int height = 600;
-        
-        if (custTable.getSelectionModel().getSelectedItem() != null) {        
+
+        if (custTable.getSelectionModel().getSelectedItem() != null) {
             MODIFY_CUST_ID = custTable.getSelectionModel().getSelectedItem().getId();
             switchScene(button, fxmlFile, title, width, height);
         } else {
@@ -264,8 +264,24 @@ public class MainScreenController implements Initializable {
     }
 
     @FXML
-    private void modifyAppt(ActionEvent event) {
-        // switch to modify appointment screen
+    private void modifyAppt(ActionEvent event) throws IOException {
+        Button button = modifyApptBtn;
+        String fxmlFile = "ModifyAppt.fxml";
+        String title = "Appointment Management System";
+        int width = 1000;
+        int height = 600;
+
+        if (apptTable.getSelectionModel().getSelectedItem() != null) {
+            MODIFY_APPT_ID = apptTable.getSelectionModel().getSelectedItem().getId();
+            switchScene(button, fxmlFile, title, width, height);
+        } else {
+            Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+            alertFailed.setTitle("Error");
+            alertFailed.setHeaderText("Invalid Appointment");
+            alertFailed.setContentText("Please select a appointment to modify.");
+
+            alertFailed.showAndWait();
+        }
     }
 
     @FXML
@@ -281,8 +297,8 @@ public class MainScreenController implements Initializable {
                     + "Are you sure you want to delete this appointment?");
 
             Optional<ButtonType> result = confirmDiag.showAndWait();
-            if (result.get() == ButtonType.OK){
-                if(deleteAppointment(delAppt.getId())) {
+            if (result.get() == ButtonType.OK) {
+                if (deleteAppointment(delAppt.getId())) {
                     initAllAppts();
                 } else {
                     Alert alertFailed = new Alert(Alert.AlertType.ERROR);
@@ -301,7 +317,7 @@ public class MainScreenController implements Initializable {
             alertFailed.showAndWait();
         }
     }
-    
+
     private void switchScene(Button button, String fxmlFile, String title, int width, int height) throws IOException {
         Stage stage = (Stage) button.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/" + fxmlFile));

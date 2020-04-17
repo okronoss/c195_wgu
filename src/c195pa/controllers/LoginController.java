@@ -45,7 +45,7 @@ public class LoginController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-    }    
+    }
 
     @FXML
     private void exit(ActionEvent event) {
@@ -61,14 +61,14 @@ public class LoginController implements Initializable {
         String title = "Appointment Management System";
         int width = 1000;
         int height = 600;
-        
+
         if (authUser(username, password)) {
             switchScene(button, fxmlFile, title, width, height);
         } else {
             errorMessage.setVisible(true);
         }
     }
-    
+
     private void switchScene(Button button, String fxmlFile, String title, int width, int height) throws IOException {
         Stage stage = (Stage) button.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/c195pa/views/" + fxmlFile));
