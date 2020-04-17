@@ -15,6 +15,7 @@ import static c195pa.AMS.getAppointments;
 import static c195pa.AMS.initActiveCustNames;
 import static c195pa.AMS.initAllAppts;
 import c195pa.models.Appointment;
+import static c195pa.models.Appointment.apptOverlap;
 import static c195pa.models.Appointment.getHours;
 import static c195pa.models.Appointment.updateAppointment;
 import c195pa.models.Customer;
@@ -83,17 +84,20 @@ public class ModifyApptController implements Initializable {
     private Button cancelBtn;
     @FXML
     private TableView<Appointment> apptTable;
-    @FXML
     private TableColumn<Appointment, String> apptTitleCol;
     @FXML
     private TableColumn<Appointment, String> apptTypeCol;
     @FXML
     private TableColumn<Appointment, ZonedDateTime> apptDateCol;
     @FXML
-    private TableColumn<Appointment, ZonedDateTime> apptTimeCol;
+    private TableColumn<Appointment, ZonedDateTime> apptStartTimeCol;
+    @FXML
+    private TableColumn<Appointment, ZonedDateTime> apptEndTimeCol;
     @FXML
     private TextField apptSearch;
-    private Appointment modifyAppt;
+
+    private final Appointment modifyAppt;
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");
 
     public ModifyApptController() throws SQLException {
         this.modifyAppt = new Appointment(MODIFY_APPT_ID);
@@ -104,27 +108,26 @@ public class ModifyApptController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // set up appointment tableview
-        apptTitleCol.setCellValueFactory(cellData -> cellData.getValue().getTitleProperty());
+        // Use lambdas to set up appointment tableview
         apptTypeCol.setCellValueFactory(cellData -> cellData.getValue().getTypeProperty());
         apptDateCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
         apptDateCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
             @Override
             protected void updateItem(ZonedDateTime item, boolean isEmpty) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
                 super.updateItem(item, isEmpty);
                 if (isEmpty) {
                     setText(null);
                 } else {
-                    setText(String.format(item.format(formatter)));
+                    setText(String.format(item.format(dateFormatter)));
                 }
             }
         });
-        apptTimeCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
-        apptTimeCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
+        apptStartTimeCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
+        apptStartTimeCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
             @Override
             protected void updateItem(ZonedDateTime item, boolean isEmpty) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+                DateTimeFormatter formatter = dtf;
                 super.updateItem(item, isEmpty);
                 if (isEmpty) {
                     setText(null);
@@ -133,6 +136,20 @@ public class ModifyApptController implements Initializable {
                 }
             }
         });
+        apptEndTimeCol.setCellValueFactory(cellData -> cellData.getValue().getEndProperty());
+        apptEndTimeCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
+            @Override
+            protected void updateItem(ZonedDateTime item, boolean isEmpty) {
+                DateTimeFormatter formatter = dtf;
+                super.updateItem(item, isEmpty);
+                if (isEmpty) {
+                    setText(null);
+                } else {
+                    setText(String.format(item.format(formatter)));
+                }
+            }
+        });
+        
         try {
             apptTable.setItems(initAllAppts());
             custField.setItems(initActiveCustNames());
@@ -168,8 +185,8 @@ public class ModifyApptController implements Initializable {
             typeField.setText(modifyAppt.getType());
             urlField.setText(modifyAppt.getUrl());
             dateField.setValue(LocalDate.from(modifyAppt.getStart()));
-            startTimeField.setValue(modifyAppt.getStart().format(DateTimeFormatter.ofPattern("hh:mm a")));
-            endTimeField.setValue(modifyAppt.getEnd().format(DateTimeFormatter.ofPattern("hh:mm a")));
+            startTimeField.setValue(modifyAppt.getStart().format(dtf));
+            endTimeField.setValue(modifyAppt.getEnd().format(dtf));
         } catch (SQLException ex) {
             Logger.getLogger(AddCustController.class.getName()).log(Level.SEVERE, null, ex);
             try {
@@ -182,17 +199,17 @@ public class ModifyApptController implements Initializable {
 
     @FXML
     private void validateTimes(ActionEvent event) {
-        LocalTime start = startTimeField.getValue() != null ? LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) : null;
-        LocalTime end = endTimeField.getValue() != null ? LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")) : null;
+        LocalTime start = startTimeField.getValue() != null ? LocalTime.parse(startTimeField.getValue(), dtf) : null;
+        LocalTime end = endTimeField.getValue() != null ? LocalTime.parse(endTimeField.getValue(), dtf) : null;
 
         errText.setVisible(false);
 
         if (start != null && end == null) {
-            endTimeField.setItems(getHours(LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a")), CLOSE_HOUR));
+            endTimeField.setItems(getHours(LocalTime.parse(startTimeField.getValue(), dtf), CLOSE_HOUR));
         }
 
         if (start == null && end != null) {
-            startTimeField.setItems(getHours(OPEN_HOUR, LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a"))));
+            startTimeField.setItems(getHours(OPEN_HOUR, LocalTime.parse(endTimeField.getValue(), dtf)));
         }
 
         if (start != null && end != null && (start.isAfter(end) || start.equals(end))) {
@@ -242,16 +259,33 @@ public class ModifyApptController implements Initializable {
             errText.setVisible(true);
             valid = false;
         } else {
-            startTime = LocalTime.parse(startTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a"));
-            endTime = LocalTime.parse(endTimeField.getValue(), DateTimeFormatter.ofPattern("hh:mm a"));
+            startTime = LocalTime.parse(startTimeField.getValue(), dtf);
+            endTime = LocalTime.parse(endTimeField.getValue(), dtf);
 
+            if (startTime.isBefore(OPEN_HOUR) || endTime.isAfter(CLOSE_HOUR)) {
+                errText.setText("Appointment must be within business hours");
+                errText.setVisible(true);
+                valid = false;
+            }
+            
             start = ZonedDateTime.of(date, startTime, ZoneId.systemDefault());
             end = ZonedDateTime.of(date, endTime, ZoneId.systemDefault());
+            
+            if (apptOverlap(start, end)) {
+                errText.setText("Appointment must not overlap with existing appointments.");
+                errText.setVisible(true);
+                valid = false;                
+            }
+
         }
 
         if (valid) {
-            updateAppointment(modifyAppt.getId(), customerId, title, description, location, contact, type, url, start, end);
-            returnToMainScreen();
+            if (updateAppointment(modifyAppt.getId(), customerId, title, description, location, contact, type, url, start, end)) {
+                returnToMainScreen();
+            } else {
+                errText.setText("Error connecting to the database.");
+                errText.setVisible(true);
+            }
         }
     }
 

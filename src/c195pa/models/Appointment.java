@@ -6,7 +6,6 @@
 package c195pa.models;
 
 import static c195pa.AMS.APPT_INTERVAL;
-import static c195pa.AMS.MODIFY_APPT_ID;
 import static c195pa.AMS.USER;
 import static c195pa.AMS.connect;
 import java.sql.Connection;
@@ -162,41 +161,61 @@ public class Appointment {
         return new SimpleObjectProperty(this.start);
     }
 
-    public static void insertAppointment(int customerId, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end) throws SQLException {
-        String un = USER.getUsername();
-        int userId = USER.getId();
-        Connection conn = connect();
-
-        Timestamp tsStart = Timestamp.valueOf(start.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
-        Timestamp tsEnd = Timestamp.valueOf(end.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
-
-        conn.createStatement().executeUpdate("INSERT INTO appointment (customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                + "VALUES('" + customerId + "', '" + userId + "', '" + title + "', '" + description + "', '" + location + "', '" + contact + "', '" + type + "', '" + url + "', '" + tsStart + "', '" + tsEnd + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+    public SimpleObjectProperty getEndProperty() {
+        return new SimpleObjectProperty(this.end);
     }
 
-    public static void updateAppointment(int appointmentId, int customerId, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end) throws SQLException {
+    public static void insertAppointment(int customerId, String title,
+            String description, String location, String contact, String type,
+            String url, ZonedDateTime start, ZonedDateTime end) throws SQLException {
         String un = USER.getUsername();
         int userId = USER.getId();
         Connection conn = connect();
-        
+
         Timestamp tsStart = Timestamp.valueOf(start.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
         Timestamp tsEnd = Timestamp.valueOf(end.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
-        
-        conn.createStatement().executeUpdate("UPDATE appointment "
-                + "SET "
-                + "customerId = '" + customerId + "', "
-                + "userId = '" + userId + "', "
-                + "title = '" + title + "', "
-                + "description = '" + description + "', "
-                + "location = '" + location + "', "
-                + "contact = '" + contact + "', "
-                + "type = '" + type + "', "
-                + "url = '" + url + "', "
-                + "start = '" + tsStart + "', "
-                + "end = '" + tsEnd + "', "
-                + "lastUpdate = NOW(), "
-                + "lastUpdateBy = '" + un + "' "
-                + "WHERE appointmentId = '" + appointmentId + "';");
+
+        conn.createStatement().executeUpdate(""
+                + "INSERT INTO appointment "
+                + "(customerId, userId, title, description, location, contact, "
+                + "type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                + "VALUES('" + customerId + "', '" + userId + "', '" + title + "', "
+                + "'" + description + "', '" + location + "', '" + contact + "', "
+                + "'" + type + "', '" + url + "', '" + tsStart + "', '" + tsEnd + "', "
+                + "NOW(), '" + un + "', NOW(), '" + un + "');");
+    }
+
+    public static boolean updateAppointment(int appointmentId, int customerId,
+            String title, String description, String location, String contact,
+            String type, String url, ZonedDateTime start, ZonedDateTime end) {
+        String un = USER.getUsername();
+        int userId = USER.getId();
+        boolean success = true;
+
+        Timestamp tsStart = Timestamp.valueOf(start.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsEnd = Timestamp.valueOf(end.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+
+        try {
+            Connection conn = connect();
+            conn.createStatement().executeUpdate("UPDATE appointment "
+                    + "SET "
+                    + "customerId = '" + customerId + "', "
+                    + "userId = '" + userId + "', "
+                    + "title = '" + title + "', "
+                    + "description = '" + description + "', "
+                    + "location = '" + location + "', "
+                    + "contact = '" + contact + "', "
+                    + "type = '" + type + "', "
+                    + "url = '" + url + "', "
+                    + "start = '" + tsStart + "', "
+                    + "end = '" + tsEnd + "', "
+                    + "lastUpdate = NOW(), "
+                    + "lastUpdateBy = '" + un + "' "
+                    + "WHERE appointmentId = '" + appointmentId + "';");
+        } catch (SQLException e) {
+            success = false;
+        }
+        return success;
     }
 
     public static boolean deleteAppointment(int appointmentId) throws SQLException {
@@ -204,12 +223,73 @@ public class Appointment {
         Connection conn = connect();
 
         try {
-            conn.createStatement().executeUpdate("DELETE FROM appointment WHERE appointmentId='" + appointmentId + "';");
+            conn.createStatement().executeUpdate(""
+                    + "DELETE FROM appointment "
+                    + "WHERE appointmentId='" + appointmentId + "';");
             success = true;
         } catch (SQLException e) {
             System.out.println("No Appointment Found.");
         }
 
         return success;
+    }
+    
+    public static int checkUpcomingAppt(int minutes) throws SQLException {
+        int apptId = -1;
+        Connection conn = connect();
+        ZonedDateTime start = ZonedDateTime.now();
+        ZonedDateTime end = start.plusMinutes(minutes);
+        Timestamp tsStart = Timestamp.valueOf(start.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsEnd = Timestamp.valueOf(end.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        
+        try {
+            ResultSet rs = connect().createStatement().executeQuery(""
+                    + "SELECT appointmentId "
+                    + "FROM appointment "
+                    + "WHERE start >= '" + tsStart + "' "
+                    + "AND start <= '" + tsEnd + "' "
+                    + "AND userId = '" + USER.getId() + "';");
+            if (rs.next()) {
+                apptId = rs.getInt("appointmentId");
+            }
+        } catch (SQLException e) {
+            System.out.println("No Appointment Found.");
+        }
+        
+        return apptId;
+    }
+    public static boolean apptOverlap(ZonedDateTime newStart, ZonedDateTime newEnd) throws SQLException {
+        boolean overlap = false;
+        Timestamp tsStart = Timestamp.valueOf(newStart.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsEnd = Timestamp.valueOf(newEnd.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsStartDate = Timestamp.valueOf(ZonedDateTime.of(newStart.getYear(), newStart.getMonthValue(), newStart.getDayOfMonth(), 0, 0, 0, 0, ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsEndDate = Timestamp.valueOf(ZonedDateTime.of(newStart.getYear(), newStart.getMonthValue(), newStart.getDayOfMonth() + 1, 0, 0, 0, 0, ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        ResultSet rs = connect().createStatement().executeQuery(""
+                + "SELECT start, end "
+                + "FROM appointment "
+                + "WHERE start >= '" + tsStartDate + "' "
+                + "AND start < '" + tsEndDate + "' "
+                + "AND userId = '" + USER.getId() + "';");
+        
+        // if new start and end time is between any existing start and end times
+//            System.out.println(tsStart);
+//            System.out.println(tsEnd);
+//            System.out.println(tsStartDate);
+//            System.out.println(tsEndDate);
+        while (rs.next()) {
+//            System.out.println(tsStart);
+//            System.out.println(tsEnd);
+//            System.out.println(rs.getTimestamp("start"));
+//            System.out.println(rs.getTimestamp("end"));
+            
+            if ((tsStart.after(rs.getTimestamp("start")) && tsStart.before(rs.getTimestamp("end"))) || tsStart.equals(rs.getTimestamp("start"))) {
+                overlap = true;
+            }
+            if ((tsEnd.after(rs.getTimestamp("start")) && tsEnd.before(rs.getTimestamp("end"))) || tsEnd.equals(rs.getTimestamp("end"))) {
+                overlap = true;
+            }
+        }
+        
+        return overlap;
     }
 }

@@ -12,6 +12,7 @@ import static c195pa.AMS.initAllCusts;
 import static c195pa.AMS.MODIFY_APPT_ID;
 import static c195pa.AMS.MODIFY_CUST_ID;
 import c195pa.models.Appointment;
+import static c195pa.models.Appointment.checkUpcomingAppt;
 import static c195pa.models.Appointment.deleteAppointment;
 import c195pa.models.Customer;
 import java.io.IOException;
@@ -78,13 +79,13 @@ public class MainScreenController implements Initializable {
     @FXML
     private TableView<Appointment> apptTable;
     @FXML
-    private TableColumn<Appointment, String> apptTitleCol;
-    @FXML
     private TableColumn<Appointment, String> apptTypeCol;
     @FXML
     private TableColumn<Appointment, ZonedDateTime> apptDateCol;
     @FXML
-    private TableColumn<Appointment, ZonedDateTime> apptTimeCol;
+    private TableColumn<Appointment, ZonedDateTime> apptStartTimeCol;
+    @FXML
+    private TableColumn<Appointment, ZonedDateTime> apptEndTimeCol;
     @FXML
     private Button addApptBtn;
     @FXML
@@ -92,24 +93,37 @@ public class MainScreenController implements Initializable {
     @FXML
     private Button deleteApptBtn;
 
+    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");
+
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        // set up customer tableview
+        // Use lambdas to set up customer tableview
         custNameCol.setCellValueFactory(cellData -> cellData.getValue().getNameProperty());
         custPhoneCol.setCellValueFactory(cellData -> cellData.getValue().getPhoneProperty());
         custStatusCol.setCellValueFactory(cellData -> cellData.getValue().getStatusProperty());
-        // set up appointment tableview
-        apptTitleCol.setCellValueFactory(cellData -> cellData.getValue().getTitleProperty());
+        // Use lambdas to set up appointment tableview
         apptTypeCol.setCellValueFactory(cellData -> cellData.getValue().getTypeProperty());
         apptDateCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
         apptDateCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
             @Override
             protected void updateItem(ZonedDateTime item, boolean isEmpty) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+                super.updateItem(item, isEmpty);
+                if (isEmpty) {
+                    setText(null);
+                } else {
+                    setText(String.format(item.format(dateFormatter)));
+                }
+            }
+        });
+        apptStartTimeCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
+        apptStartTimeCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
+            @Override
+            protected void updateItem(ZonedDateTime item, boolean isEmpty) {
+                DateTimeFormatter formatter = dtf;
                 super.updateItem(item, isEmpty);
                 if (isEmpty) {
                     setText(null);
@@ -118,11 +132,11 @@ public class MainScreenController implements Initializable {
                 }
             }
         });
-        apptTimeCol.setCellValueFactory(cellData -> cellData.getValue().getStartProperty());
-        apptTimeCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
+        apptEndTimeCol.setCellValueFactory(cellData -> cellData.getValue().getEndProperty());
+        apptEndTimeCol.setCellFactory(col -> new TableCell<Appointment, ZonedDateTime>() {
             @Override
             protected void updateItem(ZonedDateTime item, boolean isEmpty) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+                DateTimeFormatter formatter = dtf;
                 super.updateItem(item, isEmpty);
                 if (isEmpty) {
                     setText(null);
@@ -143,6 +157,28 @@ public class MainScreenController implements Initializable {
         filterCusts();
         apptSearch.textProperty().addListener(obs -> filterAppt());
         filterAppt();
+
+        // check for appointment within 15 mins
+        try {
+            int upcomingApptId = checkUpcomingAppt(15);
+            if (upcomingApptId >= 0) {
+                Appointment upcomingAppt = new Appointment(upcomingApptId);
+                Customer upcomingCust = new Customer(upcomingAppt.getCustId());
+                Alert infoDiag = new Alert(Alert.AlertType.INFORMATION);
+
+                infoDiag.setTitle("Upcoming Appointment");
+                infoDiag.setHeaderText("Your appointment with " + upcomingCust + " is coming up.");
+                infoDiag.setContentText("You have an appointment with " + upcomingCust + " at " + upcomingAppt.getStart().format(dtf) + ".");
+            }
+        } catch (SQLException ex) {
+            Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+            alertFailed.setTitle("Error");
+            alertFailed.setHeaderText("Failed to get upcoming Appointments.");
+            alertFailed.setContentText("Unable to access upcoming Appointments.");
+
+            alertFailed.showAndWait();
+            Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @FXML

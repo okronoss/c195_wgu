@@ -42,7 +42,7 @@ public class LoginController implements Initializable {
     @FXML
     private Text errorMessage;
     @FXML
-    private Text title;
+    private Text titleText;
     @FXML
     private Label usernameLabel;
     @FXML
@@ -54,13 +54,14 @@ public class LoginController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         if (Locale.getDefault() == Locale.forLanguageTag("es-ES")) {
-            title.setText("Sistema de Citas");
+            titleText.setText("Sistema de Citas");
             usernameLabel.setText("Nombre de Usuario");
             usernameField.setPromptText("Nombre de Usuario");
             passwordLabel.setText("Contraseña");
             passwordField.setPromptText("Contraseña");
             loginBtn.setText("iniciar sesión");
             cancelBtn.setText("anular");
+            errorMessage.setText("");
         }
     }
 
@@ -70,7 +71,7 @@ public class LoginController implements Initializable {
     }
 
     @FXML
-    private void login(ActionEvent event) throws SQLException, IOException {
+    private void login(ActionEvent event) throws SQLException, IOException, InvalidLoginException {
         String username = usernameField.getText();
         String password = passwordField.getText();
         Button button = loginBtn;
@@ -83,6 +84,7 @@ public class LoginController implements Initializable {
             switchScene(button, fxmlFile, title, width, height);
         } else {
             errorMessage.setVisible(true);
+            throw new InvalidLoginException("Username and password are invalid");
         }
     }
 
@@ -92,5 +94,12 @@ public class LoginController implements Initializable {
         Scene newScene = new Scene(root, width, height);
         stage.setTitle(title);
         stage.setScene(newScene);
+    }
+
+    private static class InvalidLoginException extends Exception {
+
+        public InvalidLoginException(String message) {
+            super(message);
+        }
     }
 }

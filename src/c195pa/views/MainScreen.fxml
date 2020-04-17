@@ -164,10 +164,10 @@
                         </FlowPane>
                         <TableView fx:id="apptTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
                             <columns>
-                                <TableColumn fx:id="apptTitleCol" minWidth="0.0" prefWidth="208.0" text="Title" />
-                                <TableColumn fx:id="apptTypeCol" minWidth="0.0" prefWidth="87.0" text="Type" />
-                                <TableColumn fx:id="apptDateCol" prefWidth="92.0" text="Date" />
-                                <TableColumn fx:id="apptTimeCol" minWidth="0.0" prefWidth="92.0" text="Time" />
+                                <TableColumn fx:id="apptTypeCol" minWidth="0.0" prefWidth="113.0" text="Type" />
+                                <TableColumn fx:id="apptDateCol" prefWidth="165.0" text="Date" />
+                                <TableColumn fx:id="apptStartTimeCol" minWidth="0.0" prefWidth="100.0" text="Start" />
+                        <TableColumn fx:id="apptEndTimeCol" minWidth="0.0" prefWidth="100.0" text="End" />
                             </columns>
                             <GridPane.margin>
                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

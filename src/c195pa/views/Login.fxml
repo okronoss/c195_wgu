@@ -23,7 +23,7 @@
         <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
     </rowConstraints>
     <children>
-        <Text fx:id="title" strokeType="OUTSIDE" strokeWidth="0.0" text="Appointment System" textAlignment="CENTER" wrappingWidth="400.0" GridPane.columnSpan="3">
+        <Text fx:id="titleText" strokeType="OUTSIDE" strokeWidth="0.0" text="Appointment System" textAlignment="CENTER" wrappingWidth="400.0" GridPane.columnSpan="3">
             <font>
                 <Font size="24.0" />
             </font>
