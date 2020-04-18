@@ -7,23 +7,34 @@ package c195pa.controllers;
 
 import static c195pa.AMS.getAppointments;
 import static c195pa.AMS.getCustomers;
-import static c195pa.AMS.initAllAppts;
-import static c195pa.AMS.initAllCusts;
 import static c195pa.AMS.MODIFY_APPT_ID;
 import static c195pa.AMS.MODIFY_CUST_ID;
+import static c195pa.AMS.getAllAppts;
+import static c195pa.AMS.getAllCusts;
+import static c195pa.AMS.getAllUsers;
 import c195pa.models.Appointment;
 import static c195pa.models.Appointment.checkUpcomingAppt;
 import static c195pa.models.Appointment.deleteAppointment;
 import c195pa.models.Customer;
+import c195pa.models.User;
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -147,8 +158,8 @@ public class MainScreenController implements Initializable {
         });
 
         try {
-            custTable.setItems(initAllCusts());
-            apptTable.setItems(initAllAppts());
+            custTable.setItems(getAllCusts());
+            apptTable.setItems(getAllAppts());
         } catch (SQLException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -209,18 +220,136 @@ public class MainScreenController implements Initializable {
     }
 
     @FXML
-    private void generateApptTypes(ActionEvent event) {
-        // switch scene to appointment type report
+    public void generateApptTypes() throws SQLException {
+        File report = new File("AppointmentTypesByMonth.csv");
+
+        try {
+            if (!report.exists()) {
+                report.createNewFile();
+            }
+
+            try (PrintWriter writer = new PrintWriter(report.getCanonicalPath())) {
+                Map<Month, Integer> countByMonth = new HashMap<>();
+                ObservableList<Appointment> allAppts = getAllAppts();
+
+                for (Month month : Month.values()) {
+                    countByMonth.put(month, 0);
+                }
+
+                for (Month month : Month.values()) {
+                    allAppts.stream().filter((appt) -> (appt.getStart().getMonth() == month)).forEachOrdered((_item) -> {
+                        countByMonth.put(month, countByMonth.get(month) + 1);
+                    });
+                }
+
+                writer.append("Month,Count\n");
+                for (Month month : Month.values()) {
+                    writer.append(month + "," + countByMonth.get(month) + "\n");
+                }
+
+                writer.close();
+
+                Alert alertFailed = new Alert(Alert.AlertType.INFORMATION);
+                alertFailed.setTitle("Success");
+                alertFailed.setHeaderText("Report Generated");
+                alertFailed.setContentText("Successfully generated report.");
+
+                alertFailed.showAndWait();
+            }
+        } catch (IOException e) {
+            Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+            alertFailed.setTitle("Error");
+            alertFailed.setHeaderText("Report Failed");
+            alertFailed.setContentText("Unable to generate report.");
+
+            alertFailed.showAndWait();
+        }
     }
 
     @FXML
-    private void generateConsultantSch(ActionEvent event) {
-        // switch scene to consltant schedule report
+    private void generateConsultantSch(ActionEvent event) throws SQLException {
+        File report = new File("ConsultantSchedule.csv");
+
+        try {
+            if (!report.exists()) {
+                report.createNewFile();
+            }
+
+            try (PrintWriter writer = new PrintWriter(report.getCanonicalPath())) {
+                ObservableList<User> allUsers = getAllUsers();
+                ObservableList<Appointment> allAppts = getAllAppts();
+                Comparator<Appointment> comparator = Comparator.comparing(Appointment::getStart);
+                FXCollections.sort(allAppts, comparator);
+                
+                writer.append("Consultant,Type,Date,Start,End\n");
+                
+                allUsers.forEach((User user) -> {
+                    allAppts.stream().filter((appt) -> (appt.getUserId() == user.getId())).forEachOrdered((appt) -> {
+                        writer.append(
+                                user.getUsername() + ","
+                                        + appt.getType() + ","
+                                        + appt.getStart().format(DateTimeFormatter.ofPattern("MM-dd-yy")) + ","
+                                        + appt.getStart().format(DateTimeFormatter.ofPattern("hh:mm a")) + ","
+                                        + appt.getEnd().format(DateTimeFormatter.ofPattern("hh:mm a")) + "\n"
+                        );
+                    });
+                });
+
+                writer.close();
+
+                Alert alertFailed = new Alert(Alert.AlertType.INFORMATION);
+                alertFailed.setTitle("Success");
+                alertFailed.setHeaderText("Report Generated");
+                alertFailed.setContentText("Successfully generated report.");
+
+                alertFailed.showAndWait();
+            }
+        } catch (IOException e) {
+            Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+            alertFailed.setTitle("Error");
+            alertFailed.setHeaderText("Report Failed");
+            alertFailed.setContentText("Unable to generate report.");
+
+            alertFailed.showAndWait();
+        }
     }
 
     @FXML
-    private void generateCustContact(ActionEvent event) {
-        // switch scene to customer contact info report
+    private void generateCustContact() throws SQLException {
+        File report = new File("CustomerContact.csv");
+
+        try {
+            if (!report.exists()) {
+                report.createNewFile();
+            }
+
+            try (PrintWriter writer = new PrintWriter(report.getCanonicalPath())) {
+                ObservableList<Customer> allCusts = getAllCusts();
+
+                writer.append("Customer,Status,Phone\n");
+
+                allCusts.forEach((Customer cust) -> {
+                    String status = cust.getStatus() ? "Active" : "Inactive";
+                    writer.append(cust.getName() + "," + status + "," + cust.getPhone() + "\n");
+                });
+
+                writer.close();
+
+                Alert alertFailed = new Alert(Alert.AlertType.INFORMATION);
+                alertFailed.setTitle("Success");
+                alertFailed.setHeaderText("Report Generated");
+                alertFailed.setContentText("Successfully generated report.");
+
+                alertFailed.showAndWait();
+            }
+        } catch (IOException e) {
+            Alert alertFailed = new Alert(Alert.AlertType.ERROR);
+            alertFailed.setTitle("Error");
+            alertFailed.setHeaderText("Report Failed");
+            alertFailed.setContentText("Unable to generate report.");
+
+            alertFailed.showAndWait();
+        }
     }
 
     @FXML
@@ -257,8 +386,8 @@ public class MainScreenController implements Initializable {
             Optional<ButtonType> result = confirmDiag.showAndWait();
             if (result.get() == ButtonType.OK) {
                 if (Customer.toggleActive(inactiveCust.getId())) {
-                    initAllCusts();
-                    initAllAppts();
+                    getAllCusts();
+                    getAllAppts();
                 } else {
                     Alert alertFailed = new Alert(Alert.AlertType.ERROR);
                     alertFailed.setTitle("Error");
@@ -335,7 +464,7 @@ public class MainScreenController implements Initializable {
             Optional<ButtonType> result = confirmDiag.showAndWait();
             if (result.get() == ButtonType.OK) {
                 if (deleteAppointment(delAppt.getId())) {
-                    initAllAppts();
+                    getAllAppts();
                 } else {
                     Alert alertFailed = new Alert(Alert.AlertType.ERROR);
                     alertFailed.setTitle("Error");

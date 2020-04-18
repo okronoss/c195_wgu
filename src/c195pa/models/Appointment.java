@@ -105,6 +105,10 @@ public class Appointment {
         return this.customerId;
     }
 
+    public int getUserId() {
+        return this.userId;
+    }
+
     public String getTitle() {
         return this.title;
     }

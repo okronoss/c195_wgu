@@ -6,9 +6,13 @@
 package c195pa.controllers;
 
 import static c195pa.models.User.authUser;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -81,6 +85,7 @@ public class LoginController implements Initializable {
         int height = 600;
 
         if (authUser(username, password)) {
+            logActivity(username);
             switchScene(button, fxmlFile, title, width, height);
         } else {
             errorMessage.setVisible(true);
@@ -94,6 +99,21 @@ public class LoginController implements Initializable {
         Scene newScene = new Scene(root, width, height);
         stage.setTitle(title);
         stage.setScene(newScene);
+    }
+
+    private void logActivity(String username) {
+        File log = new File("log.txt");
+
+        try {
+            if (!log.exists()) {
+                log.createNewFile();
+            }
+            try (FileWriter writer = new FileWriter(log.getCanonicalPath(), true)) {
+                writer.append(username + ": " + Timestamp.valueOf(LocalDateTime.now()) + "\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to save user activity log.");
+        }
     }
 
     private static class InvalidLoginException extends Exception {

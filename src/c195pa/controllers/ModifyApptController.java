@@ -11,9 +11,9 @@ import static c195pa.AMS.CLOSE_HOUR;
 import static c195pa.AMS.LOCATIONS;
 import static c195pa.AMS.MODIFY_APPT_ID;
 import static c195pa.AMS.OPEN_HOUR;
+import static c195pa.AMS.getActiveCustNames;
+import static c195pa.AMS.getAllAppts;
 import static c195pa.AMS.getAppointments;
-import static c195pa.AMS.initActiveCustNames;
-import static c195pa.AMS.initAllAppts;
 import c195pa.models.Appointment;
 import static c195pa.models.Appointment.apptOverlap;
 import static c195pa.models.Appointment.getHours;
@@ -151,8 +151,8 @@ public class ModifyApptController implements Initializable {
         });
         
         try {
-            apptTable.setItems(initAllAppts());
-            custField.setItems(initActiveCustNames());
+            apptTable.setItems(getAllAppts());
+            custField.setItems(getActiveCustNames());
         } catch (SQLException ex) {
             Logger.getLogger(MainScreenController.class.getName()).log(Level.SEVERE, null, ex);
         }

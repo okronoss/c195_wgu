@@ -46,6 +46,7 @@ public class AMS extends Application {
     private static Connection conn = null;
     private static final ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
     private static final ObservableList<Appointment> allAppointments = FXCollections.observableArrayList();
+    private static final ObservableList<User> allUsers = FXCollections.observableArrayList();
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -73,7 +74,22 @@ public class AMS extends Application {
         return conn;
     }
 
-    public static ObservableList<Customer> initAllCusts() throws SQLException {
+    public static ObservableList<User> getAllUsers() throws SQLException {
+        ResultSet rs = connect().createStatement().executeQuery(""
+                + "SELECT * "
+                + "FROM user;");
+
+        if (!allUsers.isEmpty()) allUsers.clear();
+
+        while (rs.next()) {
+            int id = rs.getInt("userId");
+            allUsers.add(new User(id));
+        }
+
+        return allUsers;
+    }
+
+    public static ObservableList<Customer> getAllCusts() throws SQLException {
         ResultSet rs = connect().createStatement().executeQuery(""
                 + "SELECT * "
                 + "FROM customer;");
@@ -91,7 +107,7 @@ public class AMS extends Application {
         return allCustomers;
     }
 
-    public static ObservableList<String> initActiveCustNames() throws SQLException {
+    public static ObservableList<String> getActiveCustNames() throws SQLException {
         ObservableList<String> activeCustomers = FXCollections.observableArrayList();
         ResultSet rs = connect().createStatement().executeQuery("SELECT customerName FROM customer WHERE active=1;");
 
@@ -102,7 +118,7 @@ public class AMS extends Application {
         return activeCustomers;
     }
 
-    public static ObservableList<Appointment> initAllAppts() throws SQLException {
+    public static ObservableList<Appointment> getAllAppts() throws SQLException {
         ResultSet rs = connect().createStatement().executeQuery(""
                 + "SELECT * "
                 + "FROM appointment;");
