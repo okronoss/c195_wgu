@@ -155,11 +155,10 @@ public final class Customer {
         String un = USER.getUsername();
         String countryId;
         Connection conn = connect();
-        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM country WHERE country='" + country + "'; ");
+        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM country WHERE country='" + country + "';");
 
         try {
             conn.setAutoCommit(false);
-
             if (rs.next()) {
                 countryId = "'" + rs.getString("countryId") + "'";
             } else {
@@ -167,15 +166,23 @@ public final class Customer {
                         + "VALUES('" + country + "', NOW(), '" + un + "', NOW(), '" + un + "');");
                 countryId = "LAST_INSERT_ID()";
             }
+            System.out.println(city);
             conn.createStatement().executeUpdate("INSERT INTO city (city, countryId, createDate, createdBy, lastUpdate, lastUpdateBy) "
                     + "VALUES('" + city + "', " + countryId + ", NOW(), '" + un + "', NOW(), '" + un + "');");
+            System.out.println("Checkpoint.");
             conn.createStatement().executeUpdate("INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) "
                     + "VALUES('" + address + "', '" + address2 + "', LAST_INSERT_ID(), '" + postalCode + "', '" + phoneNum + "', NOW(), '" + un + "', NOW(), '" + un + "');");
+            System.out.println("Checkpoint.");
             conn.createStatement().executeUpdate("INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
                     + "VALUES('" + name + "', LAST_INSERT_ID(), 1, NOW(), '" + un + "', NOW(), '" + un + "');");
+            System.out.println("Checkpoint.");
             conn.commit();
+            System.out.println("Checkpoint.");
             conn.setAutoCommit(true);
+            System.out.println("Checkpoint.");
         } catch (SQLException e) {
+            System.err.println("Failed to update Database. Rolling back changes.");
+            System.err.print(e);
             conn.rollback();
         }
     }

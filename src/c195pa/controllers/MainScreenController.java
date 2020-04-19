@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -104,7 +102,7 @@ public class MainScreenController implements Initializable {
     @FXML
     private Button deleteApptBtn;
 
-    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");
 
     /**
      * Initializes the controller class.
@@ -176,10 +174,12 @@ public class MainScreenController implements Initializable {
                 Appointment upcomingAppt = new Appointment(upcomingApptId);
                 Customer upcomingCust = new Customer(upcomingAppt.getCustId());
                 Alert infoDiag = new Alert(Alert.AlertType.INFORMATION);
-
+                
                 infoDiag.setTitle("Upcoming Appointment");
-                infoDiag.setHeaderText("Your appointment with " + upcomingCust + " is coming up.");
-                infoDiag.setContentText("You have an appointment with " + upcomingCust + " at " + upcomingAppt.getStart().format(dtf) + ".");
+                infoDiag.setHeaderText("Your appointment with " + upcomingCust.getName() + " is coming up.");
+                infoDiag.setContentText("You have an appointment with " + upcomingCust.getName() + " at " + upcomingAppt.getStart().format(dtf) + ".");
+                
+                infoDiag.showAndWait();
             }
         } catch (SQLException ex) {
             Alert alertFailed = new Alert(Alert.AlertType.ERROR);

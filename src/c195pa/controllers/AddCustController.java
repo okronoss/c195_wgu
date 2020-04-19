@@ -67,13 +67,13 @@ public class AddCustController implements Initializable {
 
     @FXML
     private void saveCust(ActionEvent event) throws IOException, SQLException {
-        String name = custName.toString();
-        String address = custAddress.toString();
-        String address2 = custAddress2.toString();
-        String postalCode = custPostalCode.toString();
-        String city = custCity.toString();
-        String country = custCountry.toString();
-        String phoneNum = custPhone.toString();
+        String name = custName.getText();
+        String address = custAddress.getText();
+        String address2 = custAddress2.getText();
+        String postalCode = custPostalCode.getText();
+        String city = custCity.getText();
+        String country = custCountry.getValue();
+        String phoneNum = custPhone.getText();
         boolean valid = true;
 
         errorText.setVisible(false);
