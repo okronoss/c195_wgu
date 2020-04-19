@@ -271,7 +271,7 @@ public class ModifyApptController implements Initializable {
             start = ZonedDateTime.of(date, startTime, ZoneId.systemDefault());
             end = ZonedDateTime.of(date, endTime, ZoneId.systemDefault());
             
-            if (apptOverlap(start, end)) {
+            if (apptOverlap(modifyAppt.getId(), start, end)) {
                 errText.setText("Appointment must not overlap with existing appointments.");
                 errText.setVisible(true);
                 valid = false;                

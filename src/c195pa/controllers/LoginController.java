@@ -66,7 +66,7 @@ public class LoginController implements Initializable {
             passwordField.setPromptText("Contraseña");
             loginBtn.setText("iniciar sesión");
             cancelBtn.setText("anular");
-            errorMessage.setText("");
+            errorMessage.setText("Usuario o contraseña invalido.");
         }
     }
 

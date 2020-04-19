@@ -287,4 +287,30 @@ public class Appointment {
 
         return overlap;
     }
+
+    public static boolean apptOverlap(int apptId, ZonedDateTime newStart, ZonedDateTime newEnd) throws SQLException {
+        boolean overlap = false;
+        Timestamp tsStart = Timestamp.valueOf(newStart.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsEnd = Timestamp.valueOf(newEnd.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsStartDate = Timestamp.valueOf(ZonedDateTime.of(newStart.getYear(), newStart.getMonthValue(), newStart.getDayOfMonth(), 0, 0, 0, 0, ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        Timestamp tsEndDate = Timestamp.valueOf(ZonedDateTime.of(newStart.getYear(), newStart.getMonthValue(), newStart.getDayOfMonth() + 1, 0, 0, 0, 0, ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
+        ResultSet rs = connect().createStatement().executeQuery(""
+                + "SELECT start, end "
+                + "FROM appointment "
+                + "WHERE start >= '" + tsStartDate + "' "
+                + "AND start < '" + tsEndDate + "' "
+                + "AND userId = '" + USER.getId() + "' "
+                + "AND appointmentId <> '" + apptId + "';");
+
+        while (rs.next()) {
+            if ((tsStart.after(rs.getTimestamp("start")) && tsStart.before(rs.getTimestamp("end"))) || tsStart.equals(rs.getTimestamp("start"))) {
+                overlap = true;
+            }
+            if ((tsEnd.after(rs.getTimestamp("start")) && tsEnd.before(rs.getTimestamp("end"))) || tsEnd.equals(rs.getTimestamp("end"))) {
+                overlap = true;
+            }
+        }
+
+        return overlap;
+    }
 }
