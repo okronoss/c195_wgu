@@ -40,7 +40,7 @@ public class AMS extends Application {
     public static LocalTime OPEN_HOUR = LocalTime.of(8, 0, 0, 0);
     public static LocalTime CLOSE_HOUR = LocalTime.of(17, 0, 0, 0);
     public static int APPT_INTERVAL = 30;
-    public static DayOfWeek[] CLOSED_DAYS = {DayOfWeek.SUNDAY, DayOfWeek.SATURDAY};
+    public static DayOfWeek[] CLOSED_DAYS = {/*DayOfWeek.SUNDAY, */DayOfWeek.SATURDAY};
     public static int MODIFY_CUST_ID;
     public static int MODIFY_APPT_ID;
     private static Connection conn = null;
@@ -188,7 +188,8 @@ public class AMS extends Application {
                 break;
         }
 
-        ZonedDateTime min = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime min = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0, ZoneId.systemDefault());
         ZonedDateTime max = min.plusDays(daysOut);
 
         if (src == null || src.isEmpty()) {

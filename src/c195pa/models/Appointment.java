@@ -237,7 +237,7 @@ public class Appointment {
 
         return success;
     }
-    
+
     public static int checkUpcomingAppt(int minutes) throws SQLException {
         int apptId = -1;
         Connection conn = connect();
@@ -245,7 +245,7 @@ public class Appointment {
         ZonedDateTime end = start.plusMinutes(minutes);
         Timestamp tsStart = Timestamp.valueOf(start.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
         Timestamp tsEnd = Timestamp.valueOf(end.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
-        
+
         try {
             ResultSet rs = connect().createStatement().executeQuery(""
                     + "SELECT appointmentId "
@@ -259,9 +259,10 @@ public class Appointment {
         } catch (SQLException e) {
             System.out.println("No Appointment Found.");
         }
-        
+
         return apptId;
     }
+
     public static boolean apptOverlap(ZonedDateTime newStart, ZonedDateTime newEnd) throws SQLException {
         boolean overlap = false;
         Timestamp tsStart = Timestamp.valueOf(newStart.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime());
@@ -274,18 +275,8 @@ public class Appointment {
                 + "WHERE start >= '" + tsStartDate + "' "
                 + "AND start < '" + tsEndDate + "' "
                 + "AND userId = '" + USER.getId() + "';");
-        
-        // if new start and end time is between any existing start and end times
-//            System.out.println(tsStart);
-//            System.out.println(tsEnd);
-//            System.out.println(tsStartDate);
-//            System.out.println(tsEndDate);
+
         while (rs.next()) {
-//            System.out.println(tsStart);
-//            System.out.println(tsEnd);
-//            System.out.println(rs.getTimestamp("start"));
-//            System.out.println(rs.getTimestamp("end"));
-            
             if ((tsStart.after(rs.getTimestamp("start")) && tsStart.before(rs.getTimestamp("end"))) || tsStart.equals(rs.getTimestamp("start"))) {
                 overlap = true;
             }
@@ -293,7 +284,7 @@ public class Appointment {
                 overlap = true;
             }
         }
-        
+
         return overlap;
     }
 }

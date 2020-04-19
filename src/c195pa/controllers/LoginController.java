@@ -57,8 +57,8 @@ public class LoginController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        System.out.println(Locale.getDefault());
-        if (Locale.getDefault().equals(Locale.forLanguageTag("es-ES"))) {
+        System.out.println(Locale.getDefault().getLanguage());
+        if (Locale.getDefault().getLanguage().equals(new Locale("es").getLanguage())) {
             titleText.setText("Sistema de Citas");
             usernameLabel.setText("Nombre de Usuario");
             usernameField.setPromptText("Nombre de Usuario");
