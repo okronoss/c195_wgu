@@ -1,1 +1,3 @@
-# c195_wgu
+# Appointment Management System
+
+Software project required for C195
